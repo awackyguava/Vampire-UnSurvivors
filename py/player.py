@@ -22,5 +22,4 @@ class Player(pygame.sprite.Sprite):
     
     def update(self, dt):
         pass
-
-        
+       
