@@ -59,4 +59,3 @@ class Player(pygame.sprite.Sprite):
     def update(self, dt):
         self.keys()
         self.move(dt)
-       
