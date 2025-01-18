@@ -1,8 +1,9 @@
 from settings import *
 from player import Player
 from sprites import *
-from random import randint
+from random import choice
 from pytmx.util_pygame import load_pygame
+from groups import *
 
 class Game:
     def __init__(self):
@@ -14,19 +15,21 @@ class Game:
         self.running = True
 
         ## Sheets ##
-        player_sheet = pygame.image.load(join('images', 'rogues.png')).convert_alpha()
+        self.player_sheet = pygame.image.load(join('images', 'rogues.png')).convert_alpha()
 
         ## Groups ##
-        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
 
+        ## Import Map ##
         self.map_setup()
         
         ## Sprites ##
-        self.player = Player((400,300), player_sheet, 2, 0, self.all_sprites, self.collision_sprites)
+        self.player = self.spawn_player(self.spawns)
     
     def map_setup(self):
         map = load_pygame(join('data', 'levels', 'level1.tmx'))
+        self.spawns = [obj for obj in map.get_layer_by_name('Geometry') if obj.name == 'spawn']
 
         ## Tile Layer ##
         for x, y, image in map.get_layer_by_name('Ground').tiles():
@@ -45,6 +48,10 @@ class Game:
         for object in map.get_layer_by_name('Collidables'):
             Collision((object.x, object.y), object.image, (self.all_sprites, self.collision_sprites))
 
+    def spawn_player(self, spawn_points):
+        spawn_point = choice(spawn_points)
+        return Player((spawn_point.x, spawn_point.y), self.player_sheet, 2, 0, self.all_sprites, self.collision_sprites)
+
     def exe(self):
         while self.running:
             ## dt ##
@@ -62,7 +69,7 @@ class Game:
 
             ## draw ##
             self.window.fill('darkgray')
-            self.all_sprites.draw(self.window)
+            self.all_sprites.draw(self.player.rect.center)
             pygame.display.update()
 
         pygame.quit()
