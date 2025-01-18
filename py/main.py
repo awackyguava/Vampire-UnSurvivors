@@ -12,12 +12,15 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
 
+        ## Sheets ##
+        player_sheet = pygame.image.load(join('images', 'rogues.png')).convert_alpha()
+
         ## Groups ##
         self.all_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
         
         ## Sprites ##
-        self.player = Player((400,300), 1, 1, self.all_sprites, self.collision_sprites)
+        self.player = Player((400,300), player_sheet, 2, 0, self.all_sprites, self.collision_sprites)
         for i in range(6):
             Collision((randint(0,WINDOW_WIDTH),randint(0,WINDOW_HEIGHT)), (randint(60,100),randint(40,80)), (self.all_sprites,self.collision_sprites))
     
