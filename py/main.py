@@ -16,16 +16,19 @@ class Game:
 
         ## Sheets ##
         self.player_sheet = pygame.image.load(join('images', 'rogues.png')).convert_alpha()
+        self.weapon_sheet = pygame.image.load(join('images', 'items.png')).convert_alpha()
+        self.enemy_sheet = pygame.image.load(join('images', 'monsters.png')).convert_alpha()
 
         ## Groups ##
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
+        self.enemy_sprites = pygame.sprite.Group()
 
         ## Import Map ##
         self.map_setup()
         
         ## Sprites ##
-        self.player = self.spawn_player(self.spawns)
+        self.spawn_player(self.spawns)
     
     def map_setup(self):
         map = load_pygame(join('data', 'levels', 'level1.tmx'))
@@ -50,7 +53,19 @@ class Game:
 
     def spawn_player(self, spawn_points):
         spawn_point = choice(spawn_points)
-        return Player((spawn_point.x, spawn_point.y), self.player_sheet, 2, 0, self.all_sprites, self.collision_sprites)
+        self.player = Player((spawn_point.x, spawn_point.y), self.getSprite(2,0,self.player_sheet), self.all_sprites, self.collision_sprites)
+        self.player_weapon = Weapon(self.player, self.getSprite(2, 9, self.weapon_sheet), self.all_sprites)
+        for i in range(6):
+            Enemy(self.getSprite(0, 0, self.enemy_sheet), self.player, self.all_sprites, self.collision_sprites)
+
+    def getSprite(self, sheet_x, sheet_y, sheet):
+        ## Gets sprite from sprite sheet ##
+        sheet_width = 32
+        sheet_height = 32
+        sheet_x *= sheet_width
+        sheet_y *= sheet_height
+        sprite = sheet.subsurface([sheet_x, sheet_y, sheet_width, sheet_height])
+        return sprite
 
     def exe(self):
         while self.running:
@@ -66,9 +81,7 @@ class Game:
             ## update ##
             self.all_sprites.update(dt)
             
-
             ## draw ##
-            self.window.fill('darkgray')
             self.all_sprites.draw(self.player.rect.center)
             pygame.display.update()
 
