@@ -1,27 +1,18 @@
 from settings import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, player_sheet, s_x, s_y, groups, collison_sprites):
+    def __init__(self, pos, sprite, groups, collison_sprites):
         super().__init__(groups)
-        self.image = pygame.transform.scale_by(self.getSprite(s_x, s_y, player_sheet), 2)
+        self.image = pygame.transform.scale2x(sprite)
         self.rect = self.image.get_frect(center = pos)
         self.hitbox = self.rect.inflate(-15,-5)
 
         ## Vectors ##
         self.direction = pygame.Vector2()
-        self.speed = 500
+        self.speed = 220
 
         ## Collisions ##
         self.collison_sprites = collison_sprites
-
-    def getSprite(self, s_x, s_y, sheet):
-        ## Gets sprite from sprite sheet ##
-        s_width = 32
-        s_height = 32
-        s_x *= s_width
-        s_y *= s_height
-        sprite = sheet.subsurface([s_x, s_y, s_width, s_height])
-        return sprite
     
     def keys(self):
         ## initalises keys, then sets and normalises direction vector ##
@@ -55,7 +46,7 @@ class Player(pygame.sprite.Sprite):
                             self.hitbox.bottom = sprite.rect.top
                         elif self.direction.y < 0:
                             self.hitbox.top = sprite.rect.bottom
-    
+        
     def update(self, dt):
         self.keys()
         self.move(dt)
