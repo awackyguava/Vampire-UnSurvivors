@@ -23,13 +23,24 @@ class Game:
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
         self.enemy_sprites = pygame.sprite.Group()
+        self.projectile_sprites = pygame.sprite.Group()
 
         ## Import Map ##
-        self.map_setup()
+        self.map = self.map_setup()
         
         ## Sprites ##
         self.spawn_player(self.spawns)
-    
+
+        ## Timers ##
+        self.start = pygame.time.get_ticks() / 1000
+
+        self.enemy_spawn = pygame.event.custom_type()
+        self.rate = 2000
+        pygame.time.set_timer(self.enemy_spawn, self.rate)
+
+        self.shoot = pygame.event.custom_type()
+        pygame.time.set_timer(self.shoot, 700)
+
     def map_setup(self):
         map = load_pygame(join('data', 'levels', 'level1.tmx'))
         self.spawns = [obj for obj in map.get_layer_by_name('Geometry') if obj.name == 'spawn']
@@ -50,13 +61,13 @@ class Game:
         ## Collidables Layer ##
         for object in map.get_layer_by_name('Collidables'):
             Collision((object.x, object.y), object.image, (self.all_sprites, self.collision_sprites))
+        
+        return map
 
     def spawn_player(self, spawn_points):
         spawn_point = choice(spawn_points)
         self.player = Player((spawn_point.x, spawn_point.y), self.getSprite(2,0,self.player_sheet), self.all_sprites, self.collision_sprites)
-        self.player_weapon = Weapon(self.player, self.getSprite(2, 9, self.weapon_sheet), self.all_sprites)
-        for i in range(6):
-            Enemy(self.getSprite(0, 0, self.enemy_sheet), self.player, self.all_sprites, self.collision_sprites)
+        self.player_weapon = Weapon(self.player, self.getSprite(2, 9, self.weapon_sheet), self.all_sprites, self.enemy_sprites)
 
     def getSprite(self, sheet_x, sheet_y, sheet):
         ## Gets sprite from sprite sheet ##
@@ -67,21 +78,55 @@ class Game:
         sprite = sheet.subsurface([sheet_x, sheet_y, sheet_width, sheet_height])
         return sprite
 
+    def projectile_collision(self):
+        if self.projectile_sprites:
+            for proj in self.projectile_sprites:
+                collided_sprites = pygame.sprite.spritecollide(proj, self.enemy_sprites, False, pygame.sprite.collide_mask)
+                if collided_sprites:
+                    for sprite in collided_sprites:
+                        sprite.die()
+
+    def spawn_rate(self):
+        difficulty_timer = self.time - self.start
+        print(difficulty_timer)
+        if self.rate > 200 and difficulty_timer >= 30:
+            pygame.time.set_timer(self.enemy_spawn, self.rate)
+            self.rate -= 100
+            self.start = self.time
     def exe(self):
         while self.running:
             ## dt ##
             dt = self.clock.tick() / 1000
+            self.time = pygame.time.get_ticks() / 1000
 
             ## loop ## 
             for event in pygame.event.get():
                 match event.type:
                     case pygame.QUIT:
                         self.running = False
+                    case self.enemy_spawn:
+                        Enemy(
+                            self.getSprite(0, 0, self.enemy_sheet),
+                            self.player, 
+                            (self.all_sprites, self.enemy_sprites), 
+                            self.collision_sprites,
+                            self.map
+                            )
+                    case self.shoot: ## TODO add a range + only shoot if enemy is in range
+                        Projectile(
+                            self.getSprite(0, 6, self.weapon_sheet),
+                            self.player_weapon.rect.center + self.player_weapon.player_direction,
+                            self.player_weapon.player_direction,
+                            (self.all_sprites, self.projectile_sprites),
+                        )
 
             ## update ##
+            self.spawn_rate()
             self.all_sprites.update(dt)
-            
+            self.projectile_collision()
+
             ## draw ##
+            self.window.fill('darkgreen')
             self.all_sprites.draw(self.player.rect.center)
             pygame.display.update()
 
