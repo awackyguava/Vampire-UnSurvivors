@@ -38,7 +38,8 @@ class Weapon(pygame.sprite.Sprite):
 
         self.enemy_sprites = enemy_sprites
 
-        self.range = 500
+        ## Shooting ##
+        self.range = 400
         self.shoot_time = pygame.time.get_ticks()
         self.in_range = False
         self.fire_rate = 800
@@ -51,15 +52,13 @@ class Weapon(pygame.sprite.Sprite):
         if not enemies:
             return None
 
-        ## Loop through each enemy to calculate distances ##
+        ## Loop through each enemy to calculate distances, ignore if not in range ##
         for enemy in enemies:
             distance = hypot(player[0] - enemy[0], player[1] - enemy[1])
-            if distance < smallest_distance:
+            if distance < smallest_distance and distance <= self.range:
                 smallest_distance = distance
                 closest_enemy = enemy
-                if smallest_distance >= 500:
-                    return 
-
+            
         return closest_enemy
 
     def get_direction(self):
@@ -111,7 +110,7 @@ class Enemy(pygame.sprite.Sprite): ## TODO make a parent for this and player
 
         ## Timer ## 
         self.death_start = 0
-        self.death_duration = 1000
+        self.death_duration = 400
 
 
     def get_spawn(self, map):
@@ -158,7 +157,7 @@ class Enemy(pygame.sprite.Sprite): ## TODO make a parent for this and player
         self.death_start = pygame.time.get_ticks()
 
         hurt = pygame.Surface(self.image.size).convert_alpha()
-        hurt.fill('red')
+        hurt.fill('darkred')
 
         self.image.blit(hurt, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
 

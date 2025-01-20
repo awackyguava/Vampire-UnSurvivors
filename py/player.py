@@ -1,6 +1,6 @@
 from settings import *
 
-class Player(pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite): ## TODO stats
     def __init__(self, pos, sprite, groups, collision_sprites):
         super().__init__(groups)
         self.image = pygame.transform.scale2x(sprite)

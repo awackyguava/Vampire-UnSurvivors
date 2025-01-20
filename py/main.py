@@ -41,6 +41,14 @@ class Game:
         self.shoot = pygame.event.custom_type()
         pygame.time.set_timer(self.shoot, 700)
 
+        ## Audio ##
+        self.bg_music = pygame.mixer.Sound(join('data', 'Music', 'rock_bg.mp3'))
+        self.bg_music.set_volume(0.3)
+        self.bg_music.play(-1)
+
+        ## Text ##
+        self.timer_text = pygame.font.Font(join('data', 'Fonts', 'Cormorant','Cormorant-VariableFont_wght.ttf'), 50)
+
     def map_setup(self):
         map = load_pygame(join('data', 'levels', 'level1.tmx'))
         self.spawns = [obj for obj in map.get_layer_by_name('Geometry') if obj.name == 'spawn']
@@ -125,7 +133,7 @@ class Game:
                         if self.player_weapon.can_shoot():
                             Projectile(
                                 self.getSprite(0, 6, self.weapon_sheet),
-                                self.player_weapon.rect.center + self.player_weapon.player_direction,
+                                self.player_weapon.rect.center,
                                 self.player_weapon.player_direction,
                                 (self.all_sprites, self.projectile_sprites),
                             )
@@ -139,6 +147,12 @@ class Game:
             ## draw ##
             self.window.fill('darkgreen')
             self.all_sprites.draw(self.player.rect.center)
+
+            minutes, seconds = divmod(int(self.time), 60)
+            text_surface = self.timer_text.render(f"{minutes:02}:{seconds:02}", True, 'white') 
+            self.window.blit(text_surface, (WINDOW_WIDTH / 2, 10))
+
+
             pygame.display.update()
 
         pygame.quit()
