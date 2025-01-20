@@ -85,14 +85,23 @@ class Game:
                 if collided_sprites:
                     for sprite in collided_sprites:
                         sprite.die()
+    
+    def player_collision(self):
+        collided_enemies = pygame.sprite.spritecollide(
+            self.player, self.enemy_sprites, False, pygame.sprite.collide_mask
+        )
+
+        for enemy in collided_enemies:
+            if enemy.death_start == 0:
+                self.running = False
 
     def spawn_rate(self):
         difficulty_timer = self.time - self.start
-        print(difficulty_timer)
         if self.rate > 200 and difficulty_timer >= 30:
             pygame.time.set_timer(self.enemy_spawn, self.rate)
             self.rate -= 100
             self.start = self.time
+
     def exe(self):
         while self.running:
             ## dt ##
@@ -112,18 +121,20 @@ class Game:
                             self.collision_sprites,
                             self.map
                             )
-                    case self.shoot: ## TODO add a range + only shoot if enemy is in range
-                        Projectile(
-                            self.getSprite(0, 6, self.weapon_sheet),
-                            self.player_weapon.rect.center + self.player_weapon.player_direction,
-                            self.player_weapon.player_direction,
-                            (self.all_sprites, self.projectile_sprites),
-                        )
-
+                    case self.shoot:
+                        if self.player_weapon.can_shoot():
+                            Projectile(
+                                self.getSprite(0, 6, self.weapon_sheet),
+                                self.player_weapon.rect.center + self.player_weapon.player_direction,
+                                self.player_weapon.player_direction,
+                                (self.all_sprites, self.projectile_sprites),
+                            )
+                            
             ## update ##
             self.spawn_rate()
             self.all_sprites.update(dt)
             self.projectile_collision()
+            self.player_collision()
 
             ## draw ##
             self.window.fill('darkgreen')

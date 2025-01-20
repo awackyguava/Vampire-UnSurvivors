@@ -38,6 +38,12 @@ class Weapon(pygame.sprite.Sprite):
 
         self.enemy_sprites = enemy_sprites
 
+        self.range = 500
+        self.shoot_time = pygame.time.get_ticks()
+        self.in_range = False
+        self.fire_rate = 800
+        
+
     def find_closest(self, player, enemies):
         closest_enemy = None
         smallest_distance = float(10000)
@@ -51,13 +57,15 @@ class Weapon(pygame.sprite.Sprite):
             if distance < smallest_distance:
                 smallest_distance = distance
                 closest_enemy = enemy
+                if smallest_distance >= 500:
+                    return 
 
         return closest_enemy
 
     def get_direction(self):
         player_position = pygame.Vector2(self.player.rect.center)
 
-        enemy_positions = [enemy.rect.center for enemy in self.enemy_sprites]
+        enemy_positions = [enemy.rect.center for enemy in self.enemy_sprites if enemy.death_start == 0]
 
         cloest_enemy = self.find_closest(player_position, enemy_positions)
 
@@ -65,6 +73,16 @@ class Weapon(pygame.sprite.Sprite):
             player_direction = (pygame.Vector2(cloest_enemy) - player_position)
             if player_direction:
                 self.player_direction = player_direction.normalize()
+                self.in_range = True
+        else:
+            self.in_range = False        
+
+    def can_shoot(self):
+        if pygame.time.get_ticks() - self.shoot_time > self.fire_rate:
+            if self.in_range:
+                return True
+            self.shoot_time = pygame.time.get_ticks()
+
     
     def rotate(self):
         angle = degrees(atan2(self.player_direction.x, self.player_direction.y)) + 45
@@ -74,7 +92,7 @@ class Weapon(pygame.sprite.Sprite):
         self.get_direction()
         self.rotate()
         self.rect.center = self.player.rect.center + self.player_direction * self.distance
-        self.shoot(dt)
+        self.can_shoot()
 
 class Enemy(pygame.sprite.Sprite): ## TODO make a parent for this and player
     def __init__(self, sprite, player, groups, collision_sprites, map):
@@ -93,7 +111,7 @@ class Enemy(pygame.sprite.Sprite): ## TODO make a parent for this and player
 
         ## Timer ## 
         self.death_start = 0
-        self.death_duration = 400
+        self.death_duration = 1000
 
 
     def get_spawn(self, map):
