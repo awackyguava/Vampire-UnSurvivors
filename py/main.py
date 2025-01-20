@@ -152,7 +152,6 @@ class Game:
             text_surface = self.timer_text.render(f"{minutes:02}:{seconds:02}", True, 'white') 
             self.window.blit(text_surface, (WINDOW_WIDTH / 2, 10))
 
-
             pygame.display.update()
 
         pygame.quit()

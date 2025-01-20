@@ -42,7 +42,7 @@ class Weapon(pygame.sprite.Sprite):
         self.range = 400
         self.shoot_time = pygame.time.get_ticks()
         self.in_range = False
-        self.fire_rate = 800
+        self.fire_rate = 1000
         
 
     def find_closest(self, player, enemies):
@@ -81,7 +81,6 @@ class Weapon(pygame.sprite.Sprite):
             if self.in_range:
                 return True
             self.shoot_time = pygame.time.get_ticks()
-
     
     def rotate(self):
         angle = degrees(atan2(self.player_direction.x, self.player_direction.y)) + 45
@@ -192,7 +191,7 @@ class Projectile(pygame.sprite.Sprite):
         super().__init__(groups)
 
         self.image = pygame.transform.rotozoom(sprite, degrees(atan2(direction.x, direction.y)) - 225, 1)
-        self.rect = self.image.get_frect(midtop = pos)
+        self.rect = self.image.get_frect(center = pos)
         self.direction = pygame.Vector2(direction).normalize()
         self.speed = 1000
 
