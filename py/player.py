@@ -1,7 +1,7 @@
 from settings import *
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, sprite, groups, collison_sprites):
+    def __init__(self, pos, sprite, groups, collision_sprites):
         super().__init__(groups)
         self.image = pygame.transform.scale2x(sprite)
         self.rect = self.image.get_frect(center = pos)
@@ -12,7 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.speed = 220
 
         ## Collisions ##
-        self.collison_sprites = collison_sprites
+        self.collision_sprites = collision_sprites
     
     def keys(self):
         ## initalises keys, then sets and normalises direction vector ##
@@ -32,7 +32,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.center = self.hitbox.center
 
     def collisions(self, type):
-        for sprite in self.collison_sprites:
+        for sprite in self.collision_sprites:
             if sprite.rect.colliderect(self.hitbox):
                 match type:
                     case 'horizontal':
