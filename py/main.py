@@ -3,8 +3,9 @@ from sprites import *
 from random import choice
 from pytmx.util_pygame import load_pygame
 from groups import *
+from ui import UI
 
-class Game:
+class Game: ## TODO menus, loading + saving data
     def __init__(self):
         ## SETUP ##
         pygame.init()
@@ -31,7 +32,8 @@ class Game:
         self.spawn_player(self.spawns)
 
         ## Timers ##
-        self.start = pygame.time.get_ticks() / 1000
+        self.timer_start = 0
+        self.difficulty_start = 0
 
         self.enemy_spawn = pygame.event.custom_type()
         self.rate = 2000
@@ -41,12 +43,23 @@ class Game:
         pygame.time.set_timer(self.shoot, 700)
 
         ## Audio ##
-        self.bg_music = pygame.mixer.Sound(join('data', 'Music', 'rock_bg.mp3'))
+        self.bg_music = pygame.mixer.Sound(join('data', 'Music', 'electo_bg.mp3'))
         self.bg_music.set_volume(0.3)
         self.bg_music.play(-1)
 
+        self.game_music = pygame.mixer.Sound(join('data', 'Music', 'rock_bg.mp3'))
+        self.game_music.set_volume(0.3)
+
+        self.current_music = 'bg'
+
         ## Text ##
         self.timer_text = pygame.font.Font(join('data', 'Fonts', 'Cormorant','Cormorant-VariableFont_wght.ttf'), 50)
+
+        ## UI ##
+        self.ui = UI()
+
+        ## State ##
+        self.state = 'start_menu'
 
     def map_setup(self):
         map = load_pygame(join('data', 'levels', 'level1.tmx'))
@@ -103,11 +116,11 @@ class Game:
                 self.running = False
 
     def spawn_rate(self): ## TODO change into wave function, different minutes different waves etc
-        difficulty_timer = self.time - self.start
+        difficulty_timer = self.time - self.difficulty_start
         if self.rate > 200 and difficulty_timer >= 10:
             pygame.time.set_timer(self.enemy_spawn, self.rate)
             self.rate -= 100
-            self.start = self.time
+            self.difficulty_start = self.time
 
     def exe(self):
         while self.running:
@@ -117,47 +130,73 @@ class Game:
 
             ## loop ## 
             for event in pygame.event.get():
-                match event.type:
-                    case pygame.QUIT:
+                match self.ui.state:
+                    case 'start_menu':
+                        if event.type == pygame.QUIT:
+                                self.running = False
+                    
+                    case 'quit':
                         self.running = False
-                    case self.enemy_spawn:
-                        Enemy(
-                            self.getSprite(0, 0, self.enemy_sheet),
-                            self.player, 
-                            (self.all_sprites, self.enemy_sprites), 
-                            self.collision_sprites,
-                            self.map
-                            )
-                        Enemy(
-                            self.getSprite(1, 10, self.enemy_sheet),
-                            self.player, 
-                            (self.all_sprites, self.enemy_sprites), 
-                            self.collision_sprites,
-                            self.map
-                            )
-                                                
-                    case self.shoot:
-                        if self.player_weapon.can_shoot():
-                            Projectile(
-                                self.getSprite(0, 6, self.weapon_sheet),
-                                self.player_weapon.rect.center,
-                                self.player_weapon.player_direction,
-                                (self.all_sprites, self.projectile_sprites),
-                            )
+                        
+                    case 'start':
+                            if self.timer_start == 0:
+                                self.timer_start = self.time
+                                self.difficulty_start = self.time
+                            if self.current_music != 'game':    
+                                self.bg_music.stop()
+                                self.game_music.play(-1)
+                                self.current_music = 'game'
+
+                            match event.type:
+                                case pygame.QUIT:
+                                    self.running = False
+
+                                case self.enemy_spawn:
+                                    Enemy(
+                                        self.getSprite(0, 0, self.enemy_sheet),
+                                        self.player, 
+                                        (self.all_sprites, self.enemy_sprites), 
+                                        self.collision_sprites,
+                                        self.map
+                                        )
+                                    Enemy(
+                                        self.getSprite(1, 10, self.enemy_sheet),
+                                        self.player, 
+                                        (self.all_sprites, self.enemy_sprites), 
+                                        self.collision_sprites,
+                                        self.map
+                                        )
+                                                            
+                                case self.shoot:
+                                    if self.player_weapon.can_shoot():
+                                        Projectile(
+                                            self.getSprite(0, 6, self.weapon_sheet),
+                                            self.player_weapon.rect.center,
+                                            self.player_weapon.player_direction,
+                                            (self.all_sprites, self.projectile_sprites),
+                                        )
                             
-            ## update ##
-            self.spawn_rate()
-            self.all_sprites.update(dt)
-            self.projectile_collision()
-            self.player_collision()
+            ## Menu ##
+            if self.ui.state == 'start_menu':
+                self.ui.update()
+                self.ui.draw()
 
-            ## draw ##
-            self.window.fill('darkgreen')
-            self.all_sprites.draw(self.player.rect.center)
+            elif self.ui.state == 'start':
+                ## Update ##
+                self.spawn_rate()
+                self.all_sprites.update(dt)
+                self.projectile_collision()
+                self.player_collision()
 
-            minutes, seconds = divmod(int(self.time), 60)
-            text_surface = self.timer_text.render(f"{minutes:02}:{seconds:02}", True, 'white') 
-            self.window.blit(text_surface, (WINDOW_WIDTH / 2, 10))
+                ## Draw ##
+                self.window.fill('darkgreen')
+                self.all_sprites.draw(self.player.rect.center)
+
+                if self.timer_start > 0:
+                    minutes, seconds = divmod(int(self.time - self.timer_start), 60)
+                    text_surface = self.timer_text.render(f"{minutes:02}:{seconds:02}", True, 'white') 
+                    self.window.blit(text_surface, (WINDOW_WIDTH / 2 - 30, 10))
+
 
             pygame.display.update()
 
