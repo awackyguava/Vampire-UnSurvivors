@@ -137,11 +137,12 @@ class Game: ## TODO menus, loading + saving data
                     
                     case 'quit':
                         self.running = False
-                        
+
                     case 'start':
                             if self.timer_start == 0:
                                 self.timer_start = self.time
                                 self.difficulty_start = self.time
+
                             if self.current_music != 'game':    
                                 self.bg_music.stop()
                                 self.game_music.play(-1)
