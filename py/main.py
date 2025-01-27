@@ -121,7 +121,7 @@ class Game:
                     case pygame.QUIT:
                         self.running = False
                     case self.enemy_spawn:
-                        e = Enemy(
+                        Enemy(
                             self.getSprite(0, 0, self.enemy_sheet),
                             self.player, 
                             (self.all_sprites, self.enemy_sprites), 
