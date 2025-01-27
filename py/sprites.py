@@ -22,7 +22,6 @@ class Deco(pygame.sprite.Sprite):
         self.rect = self.image.get_frect(topleft = pos)
         self.deco = True
 
-## Parent for player and enemy ##
 class Parent_Sprite(pygame.sprite.Sprite):
     def __init__(self, sprite, collision_sprites, groups):
         super().__init__(groups)
@@ -77,7 +76,6 @@ class Weapon(pygame.sprite.Sprite):
         self.shoot_time = pygame.time.get_ticks()
         self.in_range = False
         self.fire_rate = 1000
-        
 
     def find_closest(self, player, enemies):
         closest_enemy = None
