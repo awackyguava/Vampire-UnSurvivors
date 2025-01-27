@@ -1,5 +1,4 @@
 from settings import *
-from player import Player
 from sprites import *
 from random import choice
 from pytmx.util_pygame import load_pygame
@@ -103,9 +102,9 @@ class Game:
             if enemy.death_start == 0:
                 self.running = False
 
-    def spawn_rate(self):
+    def spawn_rate(self): ## TODO change into wave function, different minutes different waves etc
         difficulty_timer = self.time - self.start
-        if self.rate > 200 and difficulty_timer >= 30:
+        if self.rate > 200 and difficulty_timer >= 10:
             pygame.time.set_timer(self.enemy_spawn, self.rate)
             self.rate -= 100
             self.start = self.time
@@ -122,13 +121,21 @@ class Game:
                     case pygame.QUIT:
                         self.running = False
                     case self.enemy_spawn:
-                        Enemy(
+                        e = Enemy(
                             self.getSprite(0, 0, self.enemy_sheet),
                             self.player, 
                             (self.all_sprites, self.enemy_sprites), 
                             self.collision_sprites,
                             self.map
                             )
+                        Enemy(
+                            self.getSprite(1, 10, self.enemy_sheet),
+                            self.player, 
+                            (self.all_sprites, self.enemy_sprites), 
+                            self.collision_sprites,
+                            self.map
+                            )
+                                                
                     case self.shoot:
                         if self.player_weapon.can_shoot():
                             Projectile(
