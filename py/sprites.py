@@ -22,6 +22,39 @@ class Deco(pygame.sprite.Sprite):
         self.rect = self.image.get_frect(topleft = pos)
         self.deco = True
 
+class Parent_Sprite(pygame.sprite.Sprite):
+    def __init__(self, sprite, collision_sprites, groups):
+        super().__init__(groups)
+
+        self.image = pygame.transform.scale2x(sprite)
+
+        self.direction = pygame.Vector2()
+        self.collision_sprites = collision_sprites
+
+    def move(self, dt):
+        self.hitbox.x += self.direction.x * self.speed * dt
+        self.collisions('horizontal')
+
+        self.hitbox.y += self.direction.y * self.speed * dt
+        self.collisions('vertical')
+
+        self.rect.center = self.hitbox.center
+
+    def collisions(self, type):
+        for sprite in self.collision_sprites:
+            if sprite.rect.colliderect(self.hitbox):
+                match type:
+                    case 'horizontal':
+                        if self.direction.x > 0:
+                            self.hitbox.right = sprite.rect.left
+                        elif self.direction.x < 0:
+                            self.hitbox.left = sprite.rect.right
+                    case 'vertical':
+                        if self.direction.y > 0:
+                            self.hitbox.bottom = sprite.rect.top
+                        elif self.direction.y < 0:
+                            self.hitbox.top = sprite.rect.bottom
+
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, player, sprite, groups, enemy_sprites):
         super().__init__(groups)
@@ -38,11 +71,11 @@ class Weapon(pygame.sprite.Sprite):
 
         self.enemy_sprites = enemy_sprites
 
-        self.range = 500
+        ## Shooting ##
+        self.range = 400
         self.shoot_time = pygame.time.get_ticks()
         self.in_range = False
-        self.fire_rate = 800
-        
+        self.fire_rate = 1000
 
     def find_closest(self, player, enemies):
         closest_enemy = None
@@ -51,15 +84,13 @@ class Weapon(pygame.sprite.Sprite):
         if not enemies:
             return None
 
-        ## Loop through each enemy to calculate distances ##
+        ## Loop through each enemy to calculate distances, ignore if not in range ##
         for enemy in enemies:
             distance = hypot(player[0] - enemy[0], player[1] - enemy[1])
-            if distance < smallest_distance:
+            if distance < smallest_distance and distance <= self.range:
                 smallest_distance = distance
                 closest_enemy = enemy
-                if smallest_distance >= 500:
-                    return 
-
+            
         return closest_enemy
 
     def get_direction(self):
@@ -82,7 +113,6 @@ class Weapon(pygame.sprite.Sprite):
             if self.in_range:
                 return True
             self.shoot_time = pygame.time.get_ticks()
-
     
     def rotate(self):
         angle = degrees(atan2(self.player_direction.x, self.player_direction.y)) + 45
@@ -94,25 +124,20 @@ class Weapon(pygame.sprite.Sprite):
         self.rect.center = self.player.rect.center + self.player_direction * self.distance
         self.can_shoot()
 
-class Enemy(pygame.sprite.Sprite): ## TODO make a parent for this and player
+class Enemy(Parent_Sprite):
     def __init__(self, sprite, player, groups, collision_sprites, map):
-        super().__init__(groups)
+        super().__init__(sprite, collision_sprites, groups)
 
         self.player = player
 
-        self.og_image = pygame.transform.scale2x(sprite)
-        self.image = self.og_image
         self.rect = self.image.get_frect(center = self.get_spawn(map))
-        self.hitbox = self.rect.inflate(-15, -5)
+        self.hitbox = self.rect.inflate(-15,-5)
 
-        self.collision_sprites = collision_sprites
-        self.direction = pygame.Vector2()
-        self.speed = 150
+        self.speed = SPEED['enemy']
 
         ## Timer ## 
         self.death_start = 0
-        self.death_duration = 1000
-
+        self.death_duration = 400
 
     def get_spawn(self, map):
 
@@ -147,18 +172,13 @@ class Enemy(pygame.sprite.Sprite): ## TODO make a parent for this and player
         enemy_pos = pygame.Vector2(self.rect.center)
         self.direction = (player_pos - enemy_pos).normalize()
 
-        self.hitbox.x += self.direction.x * self.speed * dt
-        self.collisions('horizontal')
-        self.hitbox.y += self.direction.y * self.speed * dt
-        self.collisions('vertical')
-
-        self.rect.center = self.hitbox.center
+        super().move(dt)
 
     def die(self):
         self.death_start = pygame.time.get_ticks()
 
         hurt = pygame.Surface(self.image.size).convert_alpha()
-        hurt.fill('red')
+        hurt.fill('darkred')
 
         self.image.blit(hurt, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
 
@@ -166,45 +186,49 @@ class Enemy(pygame.sprite.Sprite): ## TODO make a parent for this and player
         if pygame.time.get_ticks() - self.death_start >= self.death_duration:
             self.kill()
 
-    def collisions(self, type):
-        ## Same as one in player ##
-        for sprite in self.collision_sprites:
-            if sprite.rect.colliderect(self.hitbox):
-                match type:
-                    case 'horizontal':
-                        if self.direction.x > 0:
-                            self.hitbox.right = sprite.rect.left
-                        elif self.direction.x < 0:
-                            self.hitbox.left = sprite.rect.right
-                    case 'vertical':
-                        if self.direction.y > 0:
-                            self.hitbox.bottom = sprite.rect.top
-                        elif self.direction.y < 0:
-                            self.hitbox.top = sprite.rect.bottom
-        
     def update(self, dt):
         if self.death_start == 0:
             self.move(dt)
         else:
             self.dead_timer()
 
+class Player(Parent_Sprite): ## TODO stats
+    def __init__(self, pos, sprite, groups, collision_sprites):
+        super().__init__(sprite, collision_sprites, groups)
+
+        self.rect = self.image.get_frect(center = pos)
+        self.hitbox = self.rect.inflate(-15,-5)
+
+        ## Vectors ##
+        self.speed = SPEED['player']
+
+    def keys(self):
+        ## initalises keys, then sets and normalises direction vector ##
+        keys = pygame.key.get_pressed()
+        self.direction.x = int(keys[pygame.K_RIGHT]) + int(keys[pygame.K_d]) - int(keys[pygame.K_LEFT]) - int(keys[pygame.K_a])
+        self.direction.y = int(keys[pygame.K_DOWN]) + int(keys[pygame.K_s]) - int(keys[pygame.K_UP]) - int(keys[pygame.K_w])
+        if self.direction:
+            self.direction = self.direction.normalize()
+
+    def update(self, dt):
+        self.keys()
+        super().move(dt)
+
 class Projectile(pygame.sprite.Sprite):
     def __init__(self, sprite, pos, direction, groups):
         super().__init__(groups)
 
         self.image = pygame.transform.rotozoom(sprite, degrees(atan2(direction.x, direction.y)) - 225, 1)
-        self.rect = self.image.get_frect(midtop = pos)
+        self.rect = self.image.get_frect(center = pos)
         self.direction = pygame.Vector2(direction).normalize()
-        self.speed = 1000
+        self.speed = SPEED['projectile']
 
         ## lifetime stuff ##
         self.spawn_time = pygame.time.get_ticks()
         self.lifetime = 3000
-
+    
     def update(self, dt):
         self.rect.center += self.direction * self.speed * dt
 
         if pygame.time.get_ticks() - self.spawn_time >= self.lifetime:
             self.kill()
-
-
