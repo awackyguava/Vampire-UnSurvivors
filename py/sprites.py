@@ -22,6 +22,7 @@ class Deco(pygame.sprite.Sprite):
         self.rect = self.image.get_frect(topleft = pos)
         self.deco = True
 
+## Parents ##
 class Parent_Sprite(pygame.sprite.Sprite):
     def __init__(self, sprite, collision_sprites, groups, stats):
         super().__init__(groups)
@@ -71,13 +72,12 @@ class Weapon(pygame.sprite.Sprite):
         self.image = self.weapon_surface
         self.rect = self.image.get_frect(center = self.player.rect.center + self.player_direction * self.distance)
 
-        self.enemy_sprites = enemy_sprites
-
         ## Shooting ##
-        self.range = 400
         self.shoot_time = pygame.time.get_ticks()
         self.in_range = False
         self.fire_rate = 1000
+
+        self.enemy_sprites = enemy_sprites  
 
     def find_closest(self, player, enemies):
         closest_enemy = None
@@ -89,7 +89,7 @@ class Weapon(pygame.sprite.Sprite):
         ## Loop through each enemy to calculate distances, ignore if not in range ##
         for enemy in enemies:
             distance = hypot(player[0] - enemy[0], player[1] - enemy[1])
-            if distance < smallest_distance and distance <= self.range:
+            if distance < smallest_distance and distance <= self.player.stats.range:
                 smallest_distance = distance
                 closest_enemy = enemy
             
@@ -109,13 +109,13 @@ class Weapon(pygame.sprite.Sprite):
                 self.in_range = True
         else:
             self.in_range = False        
-
+    
     def can_shoot(self):
         if pygame.time.get_ticks() - self.shoot_time > self.fire_rate:
             if self.in_range:
                 return True
             self.shoot_time = pygame.time.get_ticks()
-    
+
     def rotate(self):
         angle = degrees(atan2(self.player_direction.x, self.player_direction.y)) + 45
         self.image = pygame.transform.rotozoom(self.weapon_surface, angle, 1)
@@ -126,6 +126,29 @@ class Weapon(pygame.sprite.Sprite):
         self.rect.center = self.player.rect.center + self.player_direction * self.distance
         self.can_shoot()
 
+## Weapons ##
+class Bow(Weapon):
+    def __init__(self, player, sprite, groups, enemy_sprites):
+        super().__init__(player, sprite, groups, enemy_sprites)
+    
+    def update(self, dt):
+        super().update(dt)
+
+class Sword(Weapon):
+    def __init__(self, player, sprite, groups, enemy_sprites):
+        super().__init__(player, sprite, groups, enemy_sprites)
+
+    def update(self, dt):
+        super().update(dt)   
+
+class Wand(Weapon):
+    def __init__(self, player, sprite, groups, enemy_sprites):
+        super().__init__(player, sprite, groups, enemy_sprites)
+
+    def update(self, dt):
+        super().update(dt)
+
+## Sprites ##
 class Enemy(Parent_Sprite):
     def __init__(self, sprite, player, groups, collision_sprites, map, stats):
         super().__init__(sprite, collision_sprites, groups, stats)
