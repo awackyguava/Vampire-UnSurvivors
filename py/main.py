@@ -31,14 +31,19 @@ class Game: ## TODO menus, loading + saving data
         
         ## Characters ##
         self.character_stats = {
-            'archer' : Stats(150, 30, 250),
-            'knight' : Stats(200, 20, 200),
-            'mage' : Stats(100, 40, 225),
+            'archer' : Stats(150, 30, 250, 400),
+            'knight' : Stats(200, 20, 200, 200),
+            'mage' : Stats(100, 40, 225, 300),
         }
         self.character_sprites = {
             'archer' : (2, 0, self.player_sheet),
             'knight' : (2, 1, self.player_sheet),
             'mage' : (1, 4, self.player_sheet),
+        }
+        self.character_weapons = {
+            'archer' : (2, 9, self.weapon_sheet),
+            'knight' : (1, 1, self.weapon_sheet),
+            'mage' : (0, 10, self.weapon_sheet),
         }
 
         self.player_spawned = False
@@ -98,11 +103,22 @@ class Game: ## TODO menus, loading + saving data
 
     def spawn_player(self, spawn_points, character):
         stats = self.character_stats[character]
+        ## Get Sprites ##
         x, y, sheet = self.character_sprites[character]
-        sprite = self.getSprite(x, y, sheet)
+        player_sprite = self.getSprite(x, y, sheet)
+        x, y, sheet = self.character_weapons[character]
+        weapon_sprite = self.getSprite(x, y, sheet)
+
         spawn_point = choice(spawn_points)
-        self.player = Player((spawn_point.x, spawn_point.y), sprite, self.all_sprites, self.collision_sprites, stats)
-        self.player_weapon = Weapon(self.player, self.getSprite(2, 9, self.weapon_sheet), self.all_sprites, self.enemy_sprites)
+
+        self.player = Player((spawn_point.x, spawn_point.y), player_sprite, self.all_sprites, self.collision_sprites, stats)
+
+        if character == 'archer':
+            self.player_weapon = Bow(self.player, weapon_sprite, self.all_sprites, self.enemy_sprites)
+        elif character == 'knight':
+            self.player_weapon = Sword(self.player, weapon_sprite, self.all_sprites, self.enemy_sprites)
+        elif character == 'mage':
+            self.player_weapon = Wand(self.player, weapon_sprite, self.all_sprites, self.enemy_sprites)
 
     def getSprite(self, sheet_x, sheet_y, sheet):
         ## Gets sprite from sprite sheet ##
