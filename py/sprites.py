@@ -27,12 +27,15 @@ class Parent_Sprite(pygame.sprite.Sprite):
     def __init__(self, sprite, collision_sprites, groups, stats):
         super().__init__(groups)
 
-        self.image = pygame.transform.scale2x(sprite)
+        self.og_image = pygame.transform.scale2x(sprite)
+        self.image = self.og_image.copy()
 
         self.direction = pygame.Vector2()
         self.collision_sprites = collision_sprites
 
         self.stats = stats
+
+        self.hurt_start = 0
 
     def move(self, dt):
         self.hitbox.x += self.direction.x * self.stats.speed * dt
@@ -42,6 +45,14 @@ class Parent_Sprite(pygame.sprite.Sprite):
         self.collisions('vertical')
 
         self.rect.center = self.hitbox.center
+
+    def hurt(self):
+        self.hurt_start = pygame.time.get_ticks()
+
+        hurt = pygame.Surface(self.image.size).convert_alpha()
+        hurt.fill('darkred')
+
+        self.image.blit(hurt, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
 
     def collisions(self, type):
         for sprite in self.collision_sprites:
@@ -57,6 +68,10 @@ class Parent_Sprite(pygame.sprite.Sprite):
                             self.hitbox.bottom = sprite.rect.top
                         elif self.direction.y < 0:
                             self.hitbox.top = sprite.rect.bottom
+
+    def update(self, dt):
+        if pygame.time.get_ticks() - self.hurt_start >= 200:
+            self.image = self.og_image.copy()
 
 class Weapon(pygame.sprite.Sprite):
     def __init__(self, player, sprite, groups, enemy_sprites):
@@ -98,7 +113,7 @@ class Weapon(pygame.sprite.Sprite):
     def get_direction(self):
         player_position = pygame.Vector2(self.player.rect.center)
 
-        enemy_positions = [enemy.rect.center for enemy in self.enemy_sprites if enemy.death_start == 0]
+        enemy_positions = [enemy.rect.center for enemy in self.enemy_sprites if enemy.stats.health > 0]
 
         cloest_enemy = self.find_closest(player_position, enemy_positions)
 
@@ -151,7 +166,7 @@ class Wand(Weapon):
 ## Sprites ##
 class Enemy(Parent_Sprite):
     def __init__(self, sprite, player, groups, collision_sprites, map, stats):
-        super().__init__(sprite, collision_sprites, groups, stats)
+        super().__init__(sprite, collision_sprites, groups, stats.copy())
 
         self.player = player
 
@@ -159,7 +174,6 @@ class Enemy(Parent_Sprite):
         self.hitbox = self.rect.inflate(-15,-5)
 
         ## Timer ## 
-        self.death_start = 0
         self.death_duration = 400
 
     def get_spawn(self, map):
@@ -197,23 +211,17 @@ class Enemy(Parent_Sprite):
 
         super().move(dt)
 
-    def die(self):
-        self.death_start = pygame.time.get_ticks()
+    def hurt(self):
+        super().hurt()
 
-        hurt = pygame.Surface(self.image.size).convert_alpha()
-        hurt.fill('darkred')
-
-        self.image.blit(hurt, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
-
-    def dead_timer(self):
-        if pygame.time.get_ticks() - self.death_start >= self.death_duration:
-            self.kill()
+        self.stats.health -= 50
 
     def update(self, dt):
-        if self.death_start == 0:
+        super().update(dt)
+        if self.stats.health > 0:
             self.move(dt)
         else:
-            self.dead_timer()
+            self.kill()
 
 class Player(Parent_Sprite): ## TODO stats
     def __init__(self, pos, sprite, groups, collision_sprites, stats):
@@ -221,9 +229,6 @@ class Player(Parent_Sprite): ## TODO stats
 
         self.rect = self.image.get_frect(center = pos)
         self.hitbox = self.rect.inflate(-15,-5)
-
-        ## Vectors ##
-        self.stats = stats
 
     def keys(self):
         ## initalises keys, then sets and normalises direction vector ##
@@ -233,7 +238,16 @@ class Player(Parent_Sprite): ## TODO stats
         if self.direction:
             self.direction = self.direction.normalize()
 
+    def damage(self, enemy):
+        self.stats.health -= enemy.stats.damage
+
+        hurt = pygame.Surface(self.image.size).convert_alpha()
+        hurt.fill('darkred')
+
+        self.image.blit(hurt, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
+
     def update(self, dt):
+        super().update(dt)
         self.keys()
         super().move(dt)
 

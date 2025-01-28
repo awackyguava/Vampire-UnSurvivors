@@ -6,9 +6,12 @@ class UI():
 
         self.state = 'start_menu'
 
-        self.start_menu_options = ['Start', 'Save', 'Load', 'Quit']
+        self.start_menu_options = ['Start', 'Save', 'Load', 'Quit', 'Upgrades']
         self.character_list = ['Archer', 'Knight', 'Mage']
         self.btns = []
+        
+        ## Gold ##
+        self.gold = 0
 
     ## Helpers ##
     def input(self):
@@ -29,6 +32,7 @@ class UI():
                 case 1: self.state = 'save'
                 case 2: self.state = 'load'
                 case 3: self.state = 'quit'
+                case 4: self.state = 'upgrades'
             self.btns.clear()
 
         elif self.state == 'start':
@@ -59,37 +63,42 @@ class UI():
         pygame.draw.rect(self.window, COLOURS['lightred'], bg_rect)
         pygame.draw.rect(self.window, COLOURS['gray'], bg_rect, 5)
 
-    def display(self, text, surf):
+    def displayButton(self, text, surf):
         self.btns.append(text)
         self.window.blit(surf, text)
 
     ## Menus ##
-    def start_menu(self):
-
+    def start_menu(self):        
         ## Title ##
         title_font = self.get_font(100)
         title_surf = title_font.render('Vampire UnSurvivors', True, COLOURS['white'])
         title_text = title_surf.get_frect(center = (WINDOW_WIDTH / 2, 75))
         self.window.blit(title_surf, title_text)
 
-
-        ## Options Menu ##
         options_font = self.get_font(50)
-        options_rect = pygame.FRect(0, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-        for row in range(4):
-            x = options_rect.left + 75
-            y = 50 + options_rect.top + (options_rect.height / 4) * row
+        if len(self.btns) == 0:
+            ## Options Menu ##
+            options_rect = pygame.FRect(0, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+            for row in range(4):
+                x = options_rect.left + 75
+                y = 50 + options_rect.top + (options_rect.height / 4) * row
 
-            ## text ## 
-            option_surf = options_font.render(self.start_menu_options[row], True, COLOURS['black'])
-            option_text = option_surf.get_frect(center = (x,y))
+                ## text ## 
+                option_surf = options_font.render(self.start_menu_options[row], True, COLOURS['black'])
+                option_text = option_surf.get_frect(center = (x,y))
 
-            self.display(option_text,option_surf)
+                self.btns.append(option_text)
+            
+            ## Upgrades Menu Button ##
+            upgrade_surf = options_font.render('Upgrades', True, COLOURS['black'])
+            upgrade_text = upgrade_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+            self.btns.append(upgrade_text)
 
-            self.hover(row, self.start_menu_options)
-
-    
-
+        for i in range(len(self.btns)):
+            surf = options_font.render(self.start_menu_options[i], True, COLOURS['black'])
+            self.window.blit(surf, self.btns[i])
+            self.hover(i, self.start_menu_options)
+        
     def character_menu(self):
         character_font = self.get_font(50)
         character_rect = pygame.FRect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
@@ -101,10 +110,25 @@ class UI():
             character_surf = character_font.render(self.character_list[row], True, COLOURS['black'])
             character_text = character_surf.get_frect(center = (x,y))
 
-            self.display(character_text,character_surf)
+            self.displayButton(character_text,character_surf)
 
             self.hover(row, self.character_list)
 
+    def upgrade_menu(self):
+        gold_font = self.get_font(40)
+        
+        ## Gold ##
+        gold_bg = pygame.FRect(475, 150, WINDOW_WIDTH / 4, (WINDOW_HEIGHT / 4) - 75)
+        transparent_surface = pygame.Surface((gold_bg.width, gold_bg.height), pygame.SRCALPHA)
+        transparent_surface.fill((197, 181, 181, 160))
+        self.window.blit(transparent_surface, (gold_bg.x, gold_bg.y))
+        pygame.draw.rect(self.window, COLOURS['gold'], gold_bg, 5, 5)
+
+        gold_surface = gold_font.render(str(self.gold), True, COLOURS['white'])
+        gold_text = gold_surface.get_frect(center = (gold_bg.centerx,gold_bg.centery))
+        self.window.blit(gold_surface, gold_text)
+
+    ## Rendering ##
     def update(self):
         self.input()
         
@@ -115,3 +139,5 @@ class UI():
             case 'start_menu': self.start_menu()
 
             case 'start': self.character_menu()
+
+            case 'upgrades': self.upgrade_menu()

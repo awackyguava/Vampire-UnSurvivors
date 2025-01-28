@@ -6,4 +6,7 @@ class Stats:
         self.damage = damage
         self.speed = speed
         self.range = range
+
+    def copy(self):
+        return Stats(self.health, self.damage, self.speed, self.range)
         
