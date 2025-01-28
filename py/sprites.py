@@ -23,7 +23,7 @@ class Deco(pygame.sprite.Sprite):
         self.deco = True
 
 class Parent_Sprite(pygame.sprite.Sprite):
-    def __init__(self, sprite, collision_sprites, groups):
+    def __init__(self, sprite, collision_sprites, groups, stats):
         super().__init__(groups)
 
         self.image = pygame.transform.scale2x(sprite)
@@ -31,11 +31,13 @@ class Parent_Sprite(pygame.sprite.Sprite):
         self.direction = pygame.Vector2()
         self.collision_sprites = collision_sprites
 
+        self.stats = stats
+
     def move(self, dt):
-        self.hitbox.x += self.direction.x * self.speed * dt
+        self.hitbox.x += self.direction.x * self.stats.speed * dt
         self.collisions('horizontal')
 
-        self.hitbox.y += self.direction.y * self.speed * dt
+        self.hitbox.y += self.direction.y * self.stats.speed * dt
         self.collisions('vertical')
 
         self.rect.center = self.hitbox.center
@@ -125,15 +127,13 @@ class Weapon(pygame.sprite.Sprite):
         self.can_shoot()
 
 class Enemy(Parent_Sprite):
-    def __init__(self, sprite, player, groups, collision_sprites, map):
-        super().__init__(sprite, collision_sprites, groups)
+    def __init__(self, sprite, player, groups, collision_sprites, map, stats):
+        super().__init__(sprite, collision_sprites, groups, stats)
 
         self.player = player
 
         self.rect = self.image.get_frect(center = self.get_spawn(map))
         self.hitbox = self.rect.inflate(-15,-5)
-
-        self.speed = SPEED['enemy']
 
         ## Timer ## 
         self.death_start = 0
@@ -193,14 +193,14 @@ class Enemy(Parent_Sprite):
             self.dead_timer()
 
 class Player(Parent_Sprite): ## TODO stats
-    def __init__(self, pos, sprite, groups, collision_sprites):
-        super().__init__(sprite, collision_sprites, groups)
+    def __init__(self, pos, sprite, groups, collision_sprites, stats):
+        super().__init__(sprite, collision_sprites, groups, stats)
 
         self.rect = self.image.get_frect(center = pos)
         self.hitbox = self.rect.inflate(-15,-5)
 
         ## Vectors ##
-        self.speed = SPEED['player']
+        self.stats = stats
 
     def keys(self):
         ## initalises keys, then sets and normalises direction vector ##
