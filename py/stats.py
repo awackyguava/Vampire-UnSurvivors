@@ -9,4 +9,8 @@ class Stats:
 
     def copy(self):
         return Stats(self.health, self.damage, self.speed, self.range)
+    
+    def upgrades(self):
+        ## TODO i think make upgrades go through this and return new stats?? maybe ##
+        pass
         
