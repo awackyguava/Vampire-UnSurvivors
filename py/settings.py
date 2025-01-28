@@ -3,10 +3,12 @@ from os.path import join
 
 WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
 TILE_SIZE = 32
-SPEED = {'player': 220, 'enemy': 150, 'projectile': 1000}
+SPEED = {'enemy': 150, 'projectile': 1000}
 ## TODO make stat list
 STATS = {
-    ''
+    'damage' : 10,
+    'health' : 100,
+    'speed' : 220,
 } 
 COLOURS = {
     'white' : '#E4BDBD',
