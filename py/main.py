@@ -79,7 +79,7 @@ class Game: ## TODO menus, loading + saving data
         self.state = 'start_menu'
 
         ## Waves ##
-        ## Minute : [Amount, Sprite, Stats]
+        ## Minute : [Amount, Sprite, Stats] ##
         self.WAVES = {
             0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150)),
             1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(100, 5, 175)),
@@ -203,11 +203,7 @@ class Game: ## TODO menus, loading + saving data
                                     min = (self.time - self.timer_start) // 60
                                     amount, sprite, stats, = self.WAVES[min]
                                     
-                                    self.spawn_enemy(
-                                        amount,
-                                        sprite,
-                                        stats
-                                    )
+                                    self.spawn_enemy(amount, sprite, stats)
                                      
                                 case self.shoot:
                                     if self.player_weapon.can_shoot():
