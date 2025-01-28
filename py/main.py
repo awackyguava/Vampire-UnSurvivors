@@ -78,6 +78,13 @@ class Game: ## TODO menus, loading + saving data
         ## State ##
         self.state = 'start_menu'
 
+        ## Waves ##
+        ## Minute : [Amount, Sprite, Stats] ##
+        self.WAVES = {
+            0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150)),
+            1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(100, 5, 175)),
+        }
+
     def map_setup(self):
         map = load_pygame(join('data', 'levels', 'level1.tmx'))
         self.spawns = [obj for obj in map.get_layer_by_name('Geometry') if obj.name == 'spawn']
@@ -135,7 +142,7 @@ class Game: ## TODO menus, loading + saving data
                 collided_sprites = pygame.sprite.spritecollide(proj, self.enemy_sprites, False, pygame.sprite.collide_mask)
                 if collided_sprites:
                     for sprite in collided_sprites:
-                        sprite.die()
+                        sprite.hurt()
     
     def player_collision(self):
         collided_enemies = pygame.sprite.spritecollide(
@@ -143,16 +150,27 @@ class Game: ## TODO menus, loading + saving data
         )
 
         for enemy in collided_enemies:
-            if enemy.death_start == 0:
-                self.running = False
-
+            if enemy.stats.health > 0:
+                self.player.damage(enemy)
+        
     def spawn_rate(self): ## TODO change into wave function, different minutes different waves etc
         difficulty_timer = self.time - self.difficulty_start
         if self.rate > 200 and difficulty_timer >= 10:
             pygame.time.set_timer(self.enemy_spawn, self.rate)
             self.rate -= 100
             self.difficulty_start = self.time
-
+    
+    def spawn_enemy(self, amount, sprite, stats):
+        for i in range(amount):
+            Enemy(
+                sprite,
+                self.player, 
+                (self.all_sprites, self.enemy_sprites), 
+                self.collision_sprites,
+                self.map,
+                stats,
+            )
+        
     def exe(self):
         while self.running:
             ## dt ##
@@ -161,14 +179,14 @@ class Game: ## TODO menus, loading + saving data
 
             ## loop ## 
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
                 match self.ui.state:
                     case 'start_menu':
-                        if event.type == pygame.QUIT:
-                                self.running = False
+                        pass
                     
                     case 'start':
-                        if event.type == pygame.QUIT:
-                            self.running = False
+                        pass
 
                     case 'start_game':
                             if self.timer_start == 0:
@@ -179,36 +197,13 @@ class Game: ## TODO menus, loading + saving data
                                 self.bg_music.stop()
                                 self.game_music.play(-1)
                                 self.current_music = 'game'
-                            
+  
                             match event.type:
-                                case pygame.QUIT:
-                                    self.running = False
-
                                 case self.enemy_spawn:
-                                    Enemy(
-                                        self.getSprite(0, 0, self.enemy_sheet),
-                                        self.player, 
-                                        (self.all_sprites, self.enemy_sprites), 
-                                        self.collision_sprites,
-                                        self.map,
-                                        Stats(100,10,150)
-                                        )
-                                    Enemy(
-                                        self.getSprite(1, 10, self.enemy_sheet),
-                                        self.player, 
-                                        (self.all_sprites, self.enemy_sprites), 
-                                        self.collision_sprites,
-                                        self.map,
-                                        Stats(100,10,150)
-                                        )
-                                    Enemy(
-                                        self.getSprite(1, 10, self.enemy_sheet),
-                                        self.player, 
-                                        (self.all_sprites, self.enemy_sprites), 
-                                        self.collision_sprites,
-                                        self.map,
-                                        Stats(100,10,150)
-                                        )
+                                    min = (self.time - self.timer_start) // 60
+                                    amount, sprite, stats, = self.WAVES[min]
+                                    
+                                    self.spawn_enemy(amount, sprite, stats)
                                      
                                 case self.shoot:
                                     if self.player_weapon.can_shoot():
@@ -220,15 +215,14 @@ class Game: ## TODO menus, loading + saving data
                                         )
                             
             ## Menu ##
-            if self.ui.state == 'start_menu':
+            if self.ui.state == 'quit':
+                self.running = False
+
+            elif self.ui.state != 'start_game':
                 self.ui.update()
                 self.ui.draw()
-
-            elif self.ui.state == 'start':
-                self.ui.update()
-                self.ui.draw()
-
-            elif self.ui.state == 'start_game':
+            
+            else:
                 ## Update ##
                 if not self.player_spawned:
                     self.spawn_player(self.spawns, self.ui.selected_character)
@@ -248,8 +242,6 @@ class Game: ## TODO menus, loading + saving data
                     text_surface = self.timer_text.render(f"{minutes:02}:{seconds:02}", True, 'white') 
                     self.window.blit(text_surface, (WINDOW_WIDTH / 2 - 30, 10))
             
-            elif self.ui.state == 'quit':
-                self.running = False
 
             pygame.display.update()
 
