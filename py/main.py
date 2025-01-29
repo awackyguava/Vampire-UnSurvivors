@@ -30,6 +30,7 @@ class Game: ## TODO menus, loading + saving data
         self.map = self.map_setup()
         
         ## Characters ##
+        ## Stats (Health, Damage, Speed, Range) ##
         self.character_stats = {
             'archer' : Stats(150, 30, 250, 400),
             'knight' : Stats(200, 20, 200, 200),
@@ -79,7 +80,7 @@ class Game: ## TODO menus, loading + saving data
         self.state = 'start_menu'
 
         ## Waves ##
-        ## Minute : [Amount, Sprite, Stats] ##
+        ## Minute : [Amount, Sprite, Stats (Health, Damage, Speed)] ##
         self.WAVES = {
             0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150)),
             1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(100, 5, 175)),
@@ -143,6 +144,8 @@ class Game: ## TODO menus, loading + saving data
                 if collided_sprites:
                     for sprite in collided_sprites:
                         sprite.hurt()
+                        if sprite.stats.health <= 0:
+                            self.ui.gold.add(5)
     
     def player_collision(self):
         collided_enemies = pygame.sprite.spritecollide(
@@ -152,6 +155,8 @@ class Game: ## TODO menus, loading + saving data
         for enemy in collided_enemies:
             if enemy.stats.health > 0:
                 self.player.damage(enemy)
+                if self.player.stats.health <= 0:
+                    self.reset_game()
         
     def spawn_rate(self): ## TODO change into wave function, different minutes different waves etc
         difficulty_timer = self.time - self.difficulty_start
@@ -159,7 +164,36 @@ class Game: ## TODO menus, loading + saving data
             pygame.time.set_timer(self.enemy_spawn, self.rate)
             self.rate -= 100
             self.difficulty_start = self.time
-    
+
+    def reset_game(self):
+        ## Reset Timers ##
+        self.timer_start = 0
+        self.difficulty_start = 0
+        self.rate = 2000
+        pygame.time.set_timer(self.enemy_spawn, self.rate)
+        pygame.time.set_timer(self.shoot, 700)
+
+        ## Clear all sprites ##
+        self.all_sprites.empty()
+        self.collision_sprites.empty()
+        self.enemy_sprites.empty()
+        self.projectile_sprites.empty()
+
+        ## Map ##
+        self.map_setup()
+
+        ## Reset Player ##
+        self.player_spawned = False
+
+        ## Reset Music ##
+        if self.current_music != 'bg':
+            self.game_music.stop()
+            self.bg_music.play(-1)
+            self.current_music = 'bg'
+
+        ## Change State ##
+        self.ui.state = 'start_menu'
+
     def spawn_enemy(self, amount, sprite, stats):
         for i in range(amount):
             Enemy(
