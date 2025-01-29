@@ -214,7 +214,7 @@ class Enemy(Parent_Sprite):
     def hurt(self):
         super().hurt()
 
-        self.stats.health -= 50
+        self.stats.health -= self.player.stats.damage
 
     def update(self, dt):
         super().update(dt)
@@ -225,7 +225,7 @@ class Enemy(Parent_Sprite):
 
 class Player(Parent_Sprite): ## TODO stats
     def __init__(self, pos, sprite, groups, collision_sprites, stats):
-        super().__init__(sprite, collision_sprites, groups, stats)
+        super().__init__(sprite, collision_sprites, groups, stats.copy())
 
         self.rect = self.image.get_frect(center = pos)
         self.hitbox = self.rect.inflate(-15,-5)
