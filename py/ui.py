@@ -1,5 +1,5 @@
 from settings import *
-from stats import Gold
+from stats import Gold, Upgrades
 
 class UI():
     def __init__(self):
@@ -12,6 +12,10 @@ class UI():
         self.btns = []
 
         self.gold = Gold()
+        self.upgrades = Upgrades()
+
+        ## Labels ig ## TODO try find way to improve :)
+        self.labels = {}
         
     ## Helpers ##
     def input(self):
@@ -137,10 +141,10 @@ class UI():
 
     def upgrade_menu(self): ## TODO add buttons
         self.title('Upgrades')
-
-        gold_font = self.get_font(40)
         
         ## Gold ##
+        gold_font = self.get_font(40)
+
         gold_bg = pygame.FRect(WINDOW_WIDTH - 375, 50, WINDOW_WIDTH / 4, (WINDOW_HEIGHT / 4) - 75)
         transparent_surface = pygame.Surface((gold_bg.width, gold_bg.height), pygame.SRCALPHA)
         transparent_surface.fill((197, 181, 181, 160))
@@ -152,6 +156,30 @@ class UI():
         self.window.blit(gold_surface, gold_text)
 
         ## Buttons ##
+        upgrade_rect = pygame.FRect(WINDOW_WIDTH / 4, 100, WINDOW_WIDTH / 2, WINDOW_HEIGHT - 200)
+        if len(self.btns) == 0:
+            for i in range(3):
+                x = upgrade_rect.left + (upgrade_rect.width / 2) * i
+                y = upgrade_rect.height / 2 + 75
+
+                ## Purchase Button ##
+                upgrade_surf = gold_font.render('Purchase', True, COLOURS['black'])
+                upgrade_text = upgrade_surf.get_frect(center = (x,y))
+                self.btns.append(upgrade_text)
+
+                ## Label ##
+                upgrade_key = self.upgrades.getUpgradeKeys()[i]
+                label_surf = gold_font.render(
+                    f'{upgrade_key} - {self.upgrades.upgrade_list[upgrade_key]}',
+                      True, 
+                      COLOURS['black']
+                    )
+                label_text = label_surf.get_frect(midbottom = upgrade_text.midtop)
+                self.labels[label_surf] = label_text
+
+        self.renderMenu(gold_font, ['Purchase' for i in range(3)], True)
+        for surf, text in self.labels.items():
+            self.window.blit(surf, text)
 
     def save_menu(self):
         self.title('Save')

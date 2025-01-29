@@ -80,10 +80,10 @@ class Game: ## TODO menus, loading + saving data
         self.state = 'start_menu'
 
         ## Waves ##
-        ## Minute : [Amount, Sprite, Stats (Health, Damage, Speed)] ##
+        ## Minute : [Amount, Sprite, Stats (Health, Damage, Speed, gold_dropped)] ##
         self.WAVES = {
-            0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150)),
-            1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(100, 5, 175)),
+            0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150, gold_dropped = 5)),
+            1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(100, 5, 175, gold_dropped = 10)),
         }
 
     def map_setup(self):
@@ -145,7 +145,7 @@ class Game: ## TODO menus, loading + saving data
                     for sprite in collided_sprites:
                         sprite.hurt()
                         if sprite.stats.health <= 0:
-                            self.ui.gold.add(5)
+                            self.ui.gold.add(sprite.stats.gold_dropped)
     
     def player_collision(self):
         collided_enemies = pygame.sprite.spritecollide(
@@ -232,7 +232,7 @@ class Game: ## TODO menus, loading + saving data
                                 self.game_music.play(-1)
                                 self.current_music = 'game'
   
-                            match event.type:
+                            match event.type: ## TODO change this from events on a timer? idk yet
                                 case self.enemy_spawn:
                                     min = (self.time - self.timer_start) // 60
                                     amount, sprite, stats, = self.WAVES[min]

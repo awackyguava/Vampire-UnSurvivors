@@ -166,7 +166,7 @@ class Wand(Weapon):
 ## Sprites ##
 class Enemy(Parent_Sprite):
     def __init__(self, sprite, player, groups, collision_sprites, map, stats):
-        super().__init__(sprite, collision_sprites, groups, stats.copy())
+        super().__init__(sprite, collision_sprites, groups, stats.copyEnemy())
 
         self.player = player
 
@@ -225,7 +225,7 @@ class Enemy(Parent_Sprite):
 
 class Player(Parent_Sprite): ## TODO stats
     def __init__(self, pos, sprite, groups, collision_sprites, stats):
-        super().__init__(sprite, collision_sprites, groups, stats.copy())
+        super().__init__(sprite, collision_sprites, groups, stats.copyPlayer())
 
         self.rect = self.image.get_frect(center = pos)
         self.hitbox = self.rect.inflate(-15,-5)
