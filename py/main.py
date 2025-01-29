@@ -144,6 +144,8 @@ class Game: ## TODO menus, loading + saving data
                 if collided_sprites:
                     for sprite in collided_sprites:
                         sprite.hurt()
+                        if sprite.stats.health <= 0:
+                            self.ui.gold.add(5)
     
     def player_collision(self):
         collided_enemies = pygame.sprite.spritecollide(

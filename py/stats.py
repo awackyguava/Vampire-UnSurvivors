@@ -1,12 +1,11 @@
 from settings import *
 
 class Stats:
-    def __init__(self, health, damage, speed, range = 0, gold = 0):
+    def __init__(self, health, damage, speed, range = 0):
         self.health = health
         self.damage = damage
         self.speed = speed
         self.range = range
-        self.gold = gold
 
     def copy(self):
         return Stats(self.health, self.damage, self.speed, self.range)
@@ -22,3 +21,8 @@ class Upgrades:
 class Gold:
     def __init__(self):
         self.balance = 0
+        self.earned = 0
+        self.spent = 0
+
+    def add(self, amount):
+        self.balance += amount
