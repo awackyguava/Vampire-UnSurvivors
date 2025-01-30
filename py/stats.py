@@ -22,14 +22,37 @@ class Stats:
 
 class Upgrades:
     def __init__(self):
-        self.upgrade_list = {
+        self.upgrade_costs = {
             'Health' : 100,
             'Damage' : 150,
             'Speed' : 200,
+            'Range' : 300,
+            'bb' : 1,
+            'test' : 2,
+            'e' : 100,
+            'er' : 150,
+            'erg' : 200,
+            'ergh' : 300,
+            'erghf' : 1,
+            'erghft' : 2,
         }
+
+        self.on_upgrade = {
+            'Health' : 50,
+            'Damage' : 25,
+            'Speed' : 20,
+            'Range' : 30,
+        }
+
+
     
-    def getUpgradeKeys(self):
-        return [key for key in self.upgrade_list.keys()]
+    def getUpgradeCosts(self):
+        return [key for key in self.upgrade_costs.keys()]
+    
+    def buyUpgrade(self, key):
+        if key in self.on_upgrade:
+            self.stats.key += self.on_upgrade[key]
+
         
 
 class Gold:
