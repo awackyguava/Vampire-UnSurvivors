@@ -16,6 +16,9 @@ class UI():
 
         ## Labels ig ## TODO try find way to improve :)
         self.labels = {}
+
+        self.scroll_offset = 0
+        self.scroll_distance = 15
         
     ## Helpers ##
     def input(self):
@@ -33,6 +36,7 @@ class UI():
         ## Checks if return button is clicked ##
         if self.state != 'start_menu' and self.btns[index] == self.btns[-1]:
             self.state = 'start_menu'
+            self.scroll_offset = 0
             self.btns.clear()
             return
 
@@ -57,6 +61,14 @@ class UI():
                     self.state = 'start_game'
                     self.selected_character = 'mage'
             self.btns.clear()
+
+        elif self.state == 'upgrades':
+            if index < len(self.upgrade_keys):  # Ensure the index is valid
+                self.upgrades.buyUpgrade(self.upgrade_keys[index])  # Pass the key to buyUpgrade
+                print(f"Upgrade Purchased: {self.upgrade_keys[index]}")
+                
+        elif self.state == 'save':
+            pass
 
     def hover(self, index, options, font):
         if self.btns[index].collidepoint(self.mouse_pos):
@@ -96,6 +108,16 @@ class UI():
         if return_text not in self.btns:
             self.btns.append(return_text)
         options.append('Main Menu')
+    
+    def upgradeScroll(self):
+        # mouse_scroll = pygame.mouse.get_rel()
+        # if mouse_scroll[1] > 0:
+        #     self.scroll_offset -= 10
+        # elif mouse_scroll[1] < 0:
+        #     self.scroll_offset += 10
+        
+        ## Scroll Bar ##
+        pass
 
     ## Menus ##
     def start_menu(self):        
@@ -145,9 +167,9 @@ class UI():
         ## Gold ##
         gold_font = self.get_font(40)
 
-        gold_bg = pygame.FRect(WINDOW_WIDTH - 375, 50, WINDOW_WIDTH / 4, (WINDOW_HEIGHT / 4) - 75)
+        gold_bg = pygame.FRect(WINDOW_WIDTH - 375, 35, WINDOW_WIDTH / 4, (WINDOW_HEIGHT / 4) - 75)
         transparent_surface = pygame.Surface((gold_bg.width, gold_bg.height), pygame.SRCALPHA)
-        transparent_surface.fill((197, 181, 181, 160))
+        transparent_surface.fill(COLOURS['transparent'])
         self.window.blit(transparent_surface, (gold_bg.x, gold_bg.y))
         pygame.draw.rect(self.window, COLOURS['gold'], gold_bg, 5, 5)
 
@@ -156,28 +178,55 @@ class UI():
         self.window.blit(gold_surface, gold_text)
 
         ## Buttons ##
-        upgrade_rect = pygame.FRect(WINDOW_WIDTH / 4, 100, WINDOW_WIDTH / 2, WINDOW_HEIGHT - 200)
+        self.upgradeScroll()
+
+        upgrade_rect = pygame.FRect(WINDOW_WIDTH / 4, 200, WINDOW_WIDTH / 2, WINDOW_HEIGHT - 350)
+
+        ## Upgrade Bg ##
+        upg_border_rect = upgrade_rect.inflate(250, 75)
+        transparent_surface = pygame.Surface((upg_border_rect.width, upg_border_rect.height), pygame.SRCALPHA)
+        transparent_surface.fill(COLOURS['transparent'])
+        self.window.blit(transparent_surface, (upg_border_rect.x, upg_border_rect.y))
+        pygame.draw.rect(self.window, COLOURS['gold'], upg_border_rect, 5, 5)
+
+        self.btns.clear()
+        self.labels.clear()
+        cols = 3
+        self.upgrade_keys = []
+
         if len(self.btns) == 0:
-            for i in range(3):
-                x = upgrade_rect.left + (upgrade_rect.width / 2) * i
-                y = upgrade_rect.height / 2 + 75
+            for i in range(len(self.upgrades.upgrade_costs)):
+                row = i // cols
+                col = i % cols
+                x = upgrade_rect.left + (upgrade_rect.width / 2) * col
+                y = 100 + upgrade_rect.top + 160 * row + self.scroll_offset
+              
+                ## Boundaries ##
+                if row == 0:
+                    y = min(y, upgrade_rect.bottom - 50)
+                    if y >= upgrade_rect.bottom - 50: self.scroll_offset -= self.scroll_distance
+                elif row == (len(self.upgrades.upgrade_costs) - 1) // cols:
+                    y = max(y, upgrade_rect.top + 50)
+                    if y <= upgrade_rect.top + 50: self.scroll_offset += self.scroll_distance
 
-                ## Purchase Button ##
-                upgrade_surf = gold_font.render('Purchase', True, COLOURS['black'])
-                upgrade_text = upgrade_surf.get_frect(center = (x,y))
-                self.btns.append(upgrade_text)
+                if upgrade_rect.top <= y < upgrade_rect.bottom:
+                    upgrade_key = self.upgrades.getUpgradeCosts()[i]
+                    self.upgrade_keys.append(upgrade_key)
 
-                ## Label ##
-                upgrade_key = self.upgrades.getUpgradeKeys()[i]
-                label_surf = gold_font.render(
-                    f'{upgrade_key} - {self.upgrades.upgrade_list[upgrade_key]}',
-                      True, 
-                      COLOURS['black']
+                    ## Purchase Button ##
+                    upgrade_surf = gold_font.render('Purchase', True, COLOURS['black'])
+                    upgrade_text = upgrade_surf.get_frect(midtop = (x,y))
+
+                    ## Label ##
+                    label_surf = gold_font.render(
+                        f'{upgrade_key} - {self.upgrades.upgrade_costs[upgrade_key]}', True, COLOURS['black']
                     )
-                label_text = label_surf.get_frect(midbottom = upgrade_text.midtop)
-                self.labels[label_surf] = label_text
+                    label_text = label_surf.get_frect(midbottom = upgrade_text.midtop)
 
-        self.renderMenu(gold_font, ['Purchase' for i in range(3)], True)
+                    self.btns.append(upgrade_text)
+                    self.labels[label_surf] = label_text
+
+        self.renderMenu(gold_font, ['Purchase' for i in range(len(self.btns))], True)
         for surf, text in self.labels.items():
             self.window.blit(surf, text)
 

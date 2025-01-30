@@ -221,6 +221,13 @@ class Game: ## TODO menus, loading + saving data
                     
                     case 'start':
                         pass
+                    
+                    case 'upgrades':
+                        if event.type == pygame.MOUSEWHEEL:
+                            if event.y > 0:
+                                self.ui.scroll_offset += self.ui.scroll_distance
+                            elif event.y < 0:
+                                self.ui.scroll_offset -= self.ui.scroll_distance
 
                     case 'start_game':
                             if self.timer_start == 0:
