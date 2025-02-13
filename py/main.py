@@ -28,13 +28,19 @@ class Game: ## TODO menus, loading + saving data
 
         ## Import Map ##
         self.map = self.map_setup()
+
+        ## UI ##
+        self.ui = UI()
+
+        ## State ##
+        self.state = 'start_menu'
         
         ## Characters ##
         ## Stats (Health, Damage, Speed, Range) ##
         self.character_stats = {
-            'archer' : Stats(150, 30, 250, 400),
-            'knight' : Stats(200, 20, 200, 200),
-            'mage' : Stats(100, 40, 225, 300),
+            'archer' : Stats(150, 30, 250, 400, upgrades = self.ui.upgrades),
+            'knight' : Stats(200, 20, 200, 200, upgrades = self.ui.upgrades),
+            'mage' : Stats(100, 40, 225, 300, upgrades = self.ui.upgrades),
         }
         self.character_sprites = {
             'archer' : (2, 0, self.player_sheet),
@@ -72,12 +78,6 @@ class Game: ## TODO menus, loading + saving data
 
         ## Text ##
         self.timer_text = pygame.font.Font(join('data', 'Fonts', 'Cormorant','Cormorant-VariableFont_wght.ttf'), 50)
-
-        ## UI ##
-        self.ui = UI()
-
-        ## State ##
-        self.state = 'start_menu'
 
         ## Waves ##
         ## Minute : [Amount, Sprite, Stats (Health, Damage, Speed, gold_dropped)] ##
@@ -175,9 +175,6 @@ class Game: ## TODO menus, loading + saving data
 
         ## Clear all sprites ##
         self.all_sprites.empty()
-        self.collision_sprites.empty()
-        self.enemy_sprites.empty()
-        self.projectile_sprites.empty()
 
         ## Map ##
         self.map_setup()
@@ -239,7 +236,7 @@ class Game: ## TODO menus, loading + saving data
                                 self.game_music.play(-1)
                                 self.current_music = 'game'
   
-                            match event.type: ## TODO change this from events on a timer? idk yet
+                            match event.type: ## TODO change this from timer to set amount on screen? idk yet
                                 case self.enemy_spawn:
                                     min = (self.time - self.timer_start) // 60
                                     amount, sprite, stats, = self.WAVES[min]
