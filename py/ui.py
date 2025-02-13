@@ -15,10 +15,15 @@ class UI():
         self.upgrades = Upgrades()
 
         ## Labels ig ## TODO try find way to improve :)
-        self.labels = {}
+        self.upgrade_labels = {}
+        self.save_slot = 'save_slot1'
 
+        ## Scroll ##
         self.scroll_offset = 0
         self.scroll_distance = 15
+
+        ## Save Message Timer ##
+        self.save_message_start = 0
         
     ## Helpers ##
     def input(self):
@@ -70,7 +75,10 @@ class UI():
                     self.upgrades.buyUpgrade(current_upgrade)
                 
         elif self.state == 'save':
-            pass
+            self.save_game(index)
+
+        elif self.state == 'load':
+            self.load_game(index)
 
     def hover(self, index, options, font):
         if self.btns[index].collidepoint(self.mouse_pos):
@@ -119,9 +127,44 @@ class UI():
         transparent_surface.fill(COLOURS['transparent'])
         self.window.blit(transparent_surface, (rect.x, rect.y))
 
+    def save_game(self, save_slot):
+        save_slot_name = 'save_slot' + str(save_slot + 1) + '.txt'
+        file_path = join('data', 'saves', save_slot_name)
+
+        save_data = {
+            'gold': self.gold.balance,
+            'upgrades': self.upgrades.upgrade_count
+        }
+
+        with open(file_path, 'w') as save_file:
+            json.dump(save_data, save_file)
+
+        self.save_message_start = pygame.time.get_ticks() // 1000
+
+    def load_game(self, load_slot):
+        load_slot_name = 'save_slot' + str(load_slot + 1) + '.txt'
+        file_path = join('data', 'saves', load_slot_name)
+
+        try:
+            with open(file_path, 'r') as save_file:
+                save_data = json.load(save_file)
+                self.gold.balance = save_data['gold']
+                self.upgrades.upgrade_count = save_data['upgrades']
+                self.save_slot = load_slot_name.strip('.txt')
+
+        except FileNotFoundError:
+            print(f'No File at {file_path}')
+
+
     ## Menus ##
     def start_menu(self):        
-        self.title('Vampire UnSurvivors')        
+        self.title('Vampire UnSurvivors')
+        
+        ## Loaded Label ##
+        label_font = self.get_font(40)
+        label_surf = label_font.render(f'Current Save Slot: {self.save_slot}', True, COLOURS['black'])
+        label_text = label_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
+        self.window.blit(label_surf, label_text)       
 
         options_font = self.get_font(50)
         if len(self.btns) == 0:
@@ -187,7 +230,7 @@ class UI():
 
         ## Upgrade Buttons ##
         self.btns.clear()
-        self.labels.clear()
+        self.upgrade_labels.clear()
         cols = 3
         self.upgrade_keys = []
 
@@ -221,18 +264,52 @@ class UI():
                     label_text = label_surf.get_frect(midbottom = upgrade_text.midtop)
 
                     self.btns.append(upgrade_text)
-                    self.labels[label_surf] = label_text
+                    self.upgrade_labels[label_surf] = label_text
 
         self.renderMenu(gold_font, ['Purchase' for i in range(len(self.btns))], True)
-        for surf, text in self.labels.items():
+        for surf, text in self.upgrade_labels.items():
             self.window.blit(surf, text)
 
     def save_menu(self):
-        self.title('Save')
+        self.title('Save Game')
         
         save_font = self.get_font(60)
         save_rect = pygame.FRect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
-        save_arr = [f'Save Slot {i + 1}' for i in range(3)] 
+        save_arr = [f'Save Slot {i + 1}' for i in range(3)]
+
+        ## Save Message ##
+        save_message_font = self.get_font(40)
+        if self.save_message_start > 0:
+            save_message_time = self.current_time - self.save_message_start
+            if save_message_time <= 2:
+                save_surf = save_message_font.render('Saved!', True, COLOURS['black'])
+                save_message_text = save_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
+                self.window.blit(save_surf, save_message_text)
+            
+        if len(self.btns) == 0:
+            for i in range(3):
+                x = save_rect.left + (save_rect.width / 2) * i
+                y = WINDOW_HEIGHT / 2
+
+                save_surf = save_font.render(f'Save Slot: {i + 1}', True, COLOURS['black'])
+                save_text = save_surf.get_frect(center = (x,y))
+
+                self.btns.append(save_text)
+
+        self.renderMenu(save_font, save_arr, True)
+
+    def load_menu(self):
+        self.title('Load Save')
+
+        ## Loaded Label ##
+        label_font = self.get_font(40)
+        label_surf = label_font.render(f'Current Save Slot: {self.save_slot}', True, COLOURS['black'])
+        label_text = label_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
+        self.window.blit(label_surf, label_text)
+
+        save_font = self.get_font(60)
+        save_rect = pygame.FRect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+        save_arr = [f'Save Slot {i + 1}' for i in range(3)]
 
         if len(self.btns) == 0:
             for i in range(3):
@@ -253,6 +330,8 @@ class UI():
     def draw(self):
         self.background()
 
+        self.current_time = pygame.time.get_ticks() // 1000
+
         match self.state:
             case 'start_menu': self.start_menu()
 
@@ -261,3 +340,5 @@ class UI():
             case 'upgrades': self.upgrade_menu()
 
             case 'save': self.save_menu()
+
+            case 'load': self.load_menu()

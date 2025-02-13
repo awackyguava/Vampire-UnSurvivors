@@ -6,7 +6,7 @@ from groups import *
 from ui import UI
 from stats import Stats
 
-class Game: ## TODO menus, loading + saving data
+class Game:
     def __init__(self):
         ## SETUP ##
         pygame.init()
@@ -31,6 +31,7 @@ class Game: ## TODO menus, loading + saving data
 
         ## UI ##
         self.ui = UI()
+        self.ui.load_game(0)
 
         ## State ##
         self.state = 'start_menu'
@@ -212,11 +213,16 @@ class Game: ## TODO menus, loading + saving data
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
+                    self.ui.save_game(int(self.ui.save_slot.strip('save_slot.txt')) - 1)
+
                 match self.ui.state:
                     case 'start_menu':
                         pass
                     
                     case 'start':
+                        pass
+
+                    case 'save':
                         pass
                     
                     case 'upgrades':
@@ -255,6 +261,7 @@ class Game: ## TODO menus, loading + saving data
             ## Menu ##
             if self.ui.state == 'quit':
                 self.running = False
+                self.ui.save_game(int(self.ui.save_slot.strip('save_slot.txt')) - 1)
 
             elif self.ui.state != 'start_game':
                 self.ui.update()
