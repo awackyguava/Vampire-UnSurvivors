@@ -4,7 +4,7 @@ from random import choice
 from pytmx.util_pygame import load_pygame
 from groups import *
 from ui import UI
-from stats import Stats, Upgrades
+from stats import Stats
 
 class Game: ## TODO menus, loading + saving data
     def __init__(self):

@@ -25,11 +25,11 @@ class Stats:
     def applyUpgrades(self):
         for key, count in self.upgrades.upgrade_count.items():
              if count > 0:
-                setattr(self,
-                        key.lower(), 
-                        self.base_stats[key] + self.upgrades.on_upgrade[key] * count
-                    )
-
+                setattr(
+                    self,
+                    key.lower(), 
+                    self.base_stats[key] + self.upgrades.on_upgrade[key] * count
+                )
 
     def copyEnemy(self):
         return Stats(self.health, self.damage, self.speed, gold_dropped = self.gold_dropped)
@@ -67,8 +67,6 @@ class Upgrades:
         if stat in self.on_upgrade:
             self.upgrade_count[stat] += 1
             self.upgrade_costs[stat] = int(self.upgrade_costs[stat] * 1.2)
-
-        
 
 class Gold:
     def __init__(self):

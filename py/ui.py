@@ -185,7 +185,6 @@ class UI():
         ## Stat Tracker ##
         stat_rect = pygame.FRect(40, 20, 100, WINDOW_HEIGHT - 20)
 
-
         ## Upgrade Buttons ##
         self.btns.clear()
         self.labels.clear()
