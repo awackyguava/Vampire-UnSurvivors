@@ -142,7 +142,7 @@ class Weapon(pygame.sprite.Sprite):
         self.can_shoot()
 
 ## Weapons ##
-class Bow(Weapon):
+class Bow(Weapon): ## TODO fix where arrow is spawned
     def __init__(self, player, sprite, groups, enemy_sprites):
         super().__init__(player, sprite, groups, enemy_sprites)
     
