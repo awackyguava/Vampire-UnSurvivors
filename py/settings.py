@@ -1,6 +1,7 @@
 import pygame
 import json
 from os.path import join
+from random import choice, randint, sample
 
 WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
 TILE_SIZE = 32

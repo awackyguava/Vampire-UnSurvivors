@@ -14,6 +14,8 @@ class UI():
         self.gold = Gold()
         self.upgrades = Upgrades()
 
+        self.player = None
+
         ## Labels ig ## TODO try find way to improve :)
         self.upgrade_labels = {}
         self.save_slot = 'save_slot1'
@@ -39,7 +41,7 @@ class UI():
 
     def click(self, index):
         ## Checks if return button is clicked ##
-        if self.state != 'start_menu' and self.btns[index] == self.btns[-1]:
+        if self.state not in ['start_menu', 'level_up'] and self.btns[index] == self.btns[-1]:
             self.state = 'start_menu'
             self.scroll_offset = 0
             self.btns.clear()
@@ -79,6 +81,19 @@ class UI():
 
         elif self.state == 'load':
             self.load_game(index)
+
+        elif self.state == 'level_up':
+            upgrade = self.level_up_options[index]
+            if upgrade != 'health':
+                setattr(
+                    self.player.stats,
+                    upgrade.lower(),
+                    getattr(self.player.stats, upgrade.lower()) + self.upgrades.on_upgrade[upgrade],
+                )
+            else:
+                pass
+            self.state = 'start_game'
+            self.btns.clear()
 
     def hover(self, index, options, font):
         if self.btns[index].collidepoint(self.mouse_pos):
@@ -122,10 +137,12 @@ class UI():
     def upgradeScrollBar(self): ## TODO add scroll bar
         pass
 
-    def transparentSurfaceFill(self, rect):
+    def transparentSurfaceFill(self, rect, border = False):
         transparent_surface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
         transparent_surface.fill(COLOURS['transparent'])
         self.window.blit(transparent_surface, (rect.x, rect.y))
+        if border:
+            pygame.draw.rect(self.window, COLOURS['black'], rect, 5, 5)
 
     def save_game(self, save_slot):
         save_slot_name = 'save_slot' + str(save_slot + 1) + '.txt'
@@ -298,7 +315,7 @@ class UI():
 
         self.renderMenu(save_font, save_arr, True)
 
-    def load_menu(self):
+    def load_menu(self): ## TODO add placeholder for empty save slots
         self.title('Load Save')
 
         ## Loaded Label ##
@@ -322,6 +339,29 @@ class UI():
                 self.btns.append(save_text)
 
         self.renderMenu(save_font, save_arr, True)
+
+    def level_up_menu(self):
+        self.title('Level Up')
+
+        level_font = self.get_font(50)
+        level_rect = pygame.FRect(50, WINDOW_HEIGHT / 4, WINDOW_WIDTH - 100, WINDOW_HEIGHT - 200)
+        level_up_keys = [upgrade for upgrade in self.upgrades.upgrade_costs.keys()]
+
+        if len(self.btns) == 0:
+            self.level_up_options = sample(level_up_keys, 3)
+            for i in range(3):
+                x = level_rect.left + (level_rect.width / 3) * i
+                y = level_rect.top
+
+                upgrade_rect = pygame.FRect(x, y, level_rect.width / 3 - 25, level_rect.height)
+                self.transparentSurfaceFill(upgrade_rect, True)
+
+                level_font_surf = level_font.render(self.level_up_options[i], True, COLOURS['black'])
+                level_font_text = level_font_surf.get_frect(center=(upgrade_rect.centerx, upgrade_rect.top + 50))
+
+                self.btns.append(level_font_text)
+
+        self.renderMenu(level_font, self.level_up_options)
 
     ## Rendering ##
     def update(self):
