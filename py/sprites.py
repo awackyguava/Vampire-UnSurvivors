@@ -1,5 +1,4 @@
 from settings import *
-from random import choice, randint
 from math import hypot, atan2, degrees
 
 class Collision(pygame.sprite.Sprite):
@@ -223,12 +222,16 @@ class Enemy(Parent_Sprite):
         else:
             self.kill()
 
-class Player(Parent_Sprite): ## TODO stats
+class Player(Parent_Sprite):
     def __init__(self, pos, sprite, groups, collision_sprites, stats):
         super().__init__(sprite, collision_sprites, groups, stats.copyPlayer())
 
         self.rect = self.image.get_frect(center = pos)
         self.hitbox = self.rect.inflate(-15,-5)
+
+        self.level_up_exp = 100
+        self.level = 1
+        self.current_xp = 0
 
     def keys(self):
         ## initalises keys, then sets and normalises direction vector ##
@@ -245,6 +248,11 @@ class Player(Parent_Sprite): ## TODO stats
         hurt.fill('darkred')
 
         self.image.blit(hurt, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
+
+    def level_up(self):
+        self.level += 1
+        self.current_xp -= self.level_up_exp
+        self.level_up_exp = (self.level_up_exp * 1.2) // 1
 
     def update(self, dt):
         super().update(dt)

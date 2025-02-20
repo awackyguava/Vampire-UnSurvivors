@@ -1,7 +1,7 @@
 from settings import *
 
 class Stats:
-    def __init__(self, health, damage, speed, range = 0, gold_dropped = None, upgrades = None):
+    def __init__(self, health, damage, speed, range = 0, gold_dropped = None, exp_dropped= None, upgrades = None):
         ## Player Stats ##
         self.base_stats = {
             'Health' : health,
@@ -17,6 +17,7 @@ class Stats:
 
         ## Enemy Stats ##
         self.gold_dropped = gold_dropped
+        self.exp_dropped = exp_dropped
 
         if upgrades:
             self.upgrades = upgrades
@@ -32,7 +33,7 @@ class Stats:
                 )
 
     def copyEnemy(self):
-        return Stats(self.health, self.damage, self.speed, gold_dropped = self.gold_dropped)
+        return Stats(self.health, self.damage, self.speed, gold_dropped = self.gold_dropped, exp_dropped = self.exp_dropped)
     
     def copyPlayer(self):
         return Stats(self.health, self.damage, self.speed, self.range, upgrades = self.upgrades)

@@ -1,6 +1,5 @@
 from settings import *
 from sprites import *
-from random import choice
 from pytmx.util_pygame import load_pygame
 from groups import *
 from ui import UI
@@ -83,8 +82,9 @@ class Game:
         ## Waves ##
         ## Minute : [Amount, Sprite, Stats (Health, Damage, Speed, gold_dropped)] ##
         self.WAVES = {
-            0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150, gold_dropped = 5)),
-            1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(100, 5, 175, gold_dropped = 10)),
+            0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150, gold_dropped = 5, exp_dropped = 100)),
+            1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(125, 5, 175, gold_dropped = 10)),
+            2 : (2, self.getSprite(10, 6, self.enemy_sheet), Stats(175, 10, 225, gold_dropped = 10)),
         }
 
     def map_setup(self):
@@ -121,6 +121,7 @@ class Game:
         spawn_point = choice(spawn_points)
 
         self.player = Player((spawn_point.x, spawn_point.y), player_sprite, self.all_sprites, self.collision_sprites, stats)
+        self.ui.player = self.player
 
         if character == 'archer':
             self.player_weapon = Bow(self.player, weapon_sprite, self.all_sprites, self.enemy_sprites)
@@ -147,6 +148,10 @@ class Game:
                         sprite.hurt()
                         if sprite.stats.health <= 0:
                             self.ui.gold.add(sprite.stats.gold_dropped)
+                            self.player.current_xp += sprite.stats.exp_dropped
+                            if self.player.current_xp >= self.player.level_up_exp:
+                                self.player.level_up()
+                                self.ui.state = 'level_up'
     
     def player_collision(self):
         collided_enemies = pygame.sprite.spritecollide(
@@ -224,7 +229,7 @@ class Game:
 
                     case 'save':
                         pass
-                    
+
                     case 'upgrades':
                         if event.type == pygame.MOUSEWHEEL:
                             if event.y > 0:
@@ -262,6 +267,10 @@ class Game:
             if self.ui.state == 'quit':
                 self.running = False
                 self.ui.save_game(int(self.ui.save_slot.strip('save_slot.txt')) - 1)
+            
+            if self.ui.state == 'level_up':
+                self.ui.level_up_menu()
+                self.ui.update()
 
             elif self.ui.state != 'start_game':
                 self.ui.update()
