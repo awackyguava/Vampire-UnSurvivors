@@ -41,7 +41,7 @@ class UI():
 
     def click(self, index):
         ## Checks if return button is clicked ##
-        if self.state not in ['start_menu', 'level_up'] and self.btns[index] == self.btns[-1]:
+        if self.state not in ['start_menu', 'level_up', 'pause'] and self.btns[index] == self.btns[-1]:
             self.state = 'start_menu'
             self.scroll_offset = 0
             self.btns.clear()
@@ -98,6 +98,12 @@ class UI():
                 )
                 print(vars(self.player.stats))
             self.state = 'start_game'
+            self.btns.clear()
+
+        elif self.state == 'pause':
+            match index:
+                case 0: self.state = 'start_game'
+                case 1: self.state = 'reset'
             self.btns.clear()
 
     def hover(self, index, options, font):
@@ -249,8 +255,7 @@ class UI():
         gold_font = self.get_font(40)
 
         gold_bg = pygame.FRect(WINDOW_WIDTH - 375, 35, WINDOW_WIDTH / 4, (WINDOW_HEIGHT / 4) - 75)
-        self.transparentSurfaceFill(gold_bg)
-        pygame.draw.rect(self.window, COLOURS['gold'], gold_bg, 5, 5)
+        self.transparentSurfaceFill(gold_bg, True)
 
         gold_surface = gold_font.render(str(self.gold.balance), True, COLOURS['white'])
         gold_text = gold_surface.get_frect(center = (gold_bg.centerx,gold_bg.centery))
@@ -260,10 +265,9 @@ class UI():
 
         ## Upgrade Bg ##
         upg_border_rect = upgrade_rect.inflate(250, 75)
-        self.transparentSurfaceFill(upg_border_rect)
-        pygame.draw.rect(self.window, COLOURS['gold'], upg_border_rect, 5, 5)
+        self.transparentSurfaceFill(upg_border_rect, True)
 
-        ## Stat Tracker ##
+        ## TODO Stat Tracker ##
         stat_rect = pygame.FRect(40, 20, 100, WINDOW_HEIGHT - 20)
 
         ## Upgrade Buttons ##
@@ -383,6 +387,42 @@ class UI():
                 self.btns.append(level_font_text)
 
         self.renderMenu(level_font, self.level_up_options)
+
+    def pause_menu(self):
+        self.title('Game Paused')
+
+        stat_rect = pygame.FRect(150, 150, WINDOW_WIDTH - 300, WINDOW_HEIGHT - 225)
+
+        pause_font = self.get_font(35)
+
+        stats = vars(self.player.stats)
+        filtered_stats = {key: value for key, value in stats.items() if key in ['health', 'damage', 'speed', 'range']}
+
+        for key, value in filtered_stats.items():
+            match key:
+                case 'health': x, y = stat_rect.left + stat_rect.width / 4, stat_rect.top + stat_rect.height / 4
+                case 'damage': x, y = stat_rect.right - stat_rect.width / 4, stat_rect.bottom - stat_rect.height / 4
+                case 'speed': x, y = stat_rect.left + stat_rect.width / 4, stat_rect.bottom - stat_rect.height / 4
+                case 'range': x, y = stat_rect.right - stat_rect.width / 4, stat_rect.top + stat_rect.height / 4
+            stat_surf = pause_font.render(f'{key}: {value}', True, COLOURS['black'])
+            stat_text = stat_surf.get_frect(center = (x,y))
+            self.window.blit(stat_surf, stat_text)
+        pause_btns = ['Resume', 'Quit To Menu']
+        
+        if len(self.btns) == 0:
+            self.transparentSurfaceFill(stat_rect, True)
+            for i in range(0, 2):
+                x = stat_rect.width / 4 + stat_rect.left + (stat_rect.width / 2) * i
+                y = stat_rect.bottom + 25
+
+                pause_surf = pause_font.render(pause_btns[i], True, COLOURS['black'])
+                pause_text = pause_surf.get_frect(center = (x,y))
+                self.btns.append(pause_text)
+
+                button_bg = pause_text.inflate(25, 15)
+                pygame.draw.rect(self.window, COLOURS['white'], button_bg, border_radius=5)
+
+        self.renderMenu(pause_font, pause_btns)
 
     ## Rendering ##
     def update(self):

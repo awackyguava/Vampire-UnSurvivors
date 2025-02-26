@@ -1,1 +1,1 @@
-{"gold": 2363, "upgrades": {"Health": 0, "Damage": 2, "Speed": 0, "Range": 0}}
+{"gold": 2763, "upgrades": {"Health": 0, "Damage": 2, "Speed": 0, "Range": 0}}

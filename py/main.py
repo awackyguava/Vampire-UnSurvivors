@@ -32,9 +32,6 @@ class Game:
         self.ui = UI()
         self.ui.load_game(0)
 
-        ## State ##
-        self.state = 'start_menu'
-        
         ## Characters ##
         ## Stats (Health, Damage, Speed, Range) ##
         self.character_stats = {
@@ -162,7 +159,7 @@ class Game:
             if enemy.stats.health > 0:
                 self.player.damage(enemy)
                 if self.player.stats.health <= 0:
-                    self.reset_game()
+                    self.ui.state = 'reset'
         
     def spawn_rate(self): ## TODO change into wave function, different minutes different waves etc
         difficulty_timer = self.time - self.difficulty_start
@@ -223,7 +220,7 @@ class Game:
                 match self.ui.state:
                     case 'start_menu':
                         pass
-                    
+                
                     case 'start':
                         pass
 
@@ -246,6 +243,9 @@ class Game:
                                 self.bg_music.stop()
                                 self.game_music.play(-1)
                                 self.current_music = 'game'
+
+                            if pygame.key.get_pressed()[pygame.K_ESCAPE] or pygame.key.get_pressed()[pygame.K_p]:
+                                self.ui.state = 'pause'
   
                             match event.type: ## TODO change this from timer to set amount on screen? idk yet
                                 case self.enemy_spawn:
@@ -268,9 +268,16 @@ class Game:
                 self.running = False
                 self.ui.save_game(int(self.ui.save_slot.strip('save_slot.txt')) - 1)
             
-            if self.ui.state == 'level_up':
+            elif self.ui.state == 'level_up':
                 self.ui.level_up_menu()
                 self.ui.update()
+
+            elif self.ui.state == 'pause':
+                self.ui.pause_menu()
+                self.ui.update()
+
+            elif self.ui.state == 'reset':
+                self.reset_game()
 
             elif self.ui.state != 'start_game':
                 self.ui.update()
