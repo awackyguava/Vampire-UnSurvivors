@@ -1,9 +1,11 @@
 # Vampire UnSurvivors
 
-## Playing the game
-an easier alternative to installing the files is playing it on itch.io:
-(link TBC)
-
 ## Installation
-* clone the repo
-* pip install requirements.txt
+* clone the repo:  
+  `git clone https://github.com/yourusername/Vampire-UnSurvivors.git`
+* Install required packages  
+`pip install -r requirements.txt`
+
+## Running
+simply run main.py in your IDE or in your terminal run:  
+`python py/main.py`
