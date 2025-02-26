@@ -84,14 +84,19 @@ class UI():
 
         elif self.state == 'level_up':
             upgrade = self.level_up_options[index]
-            if upgrade != 'health':
+            if upgrade != 'Health':
                 setattr(
                     self.player.stats,
                     upgrade.lower(),
                     getattr(self.player.stats, upgrade.lower()) + self.upgrades.on_upgrade[upgrade],
                 )
             else:
-                pass
+                setattr(
+                    self.player.stats,
+                    upgrade.lower(),
+                    self.player.stats.base_stats[upgrade] + self.upgrades.on_upgrade[upgrade]
+                )
+                print(vars(self.player.stats))
             self.state = 'start_game'
             self.btns.clear()
 
@@ -172,6 +177,22 @@ class UI():
         except FileNotFoundError:
             print(f'No File at {file_path}')
 
+    def level_up_bar(self):
+        bar_font = self.get_font(25)
+        experience_rect = pygame.FRect(0, 0, WINDOW_WIDTH, 35)
+        pygame.draw.rect(self.window, COLOURS['white'], experience_rect, 5)
+
+        current_xp = self.player.current_xp
+        level_xp = self.player.level_up_exp
+        xp_percentage = current_xp / level_xp
+        filled_xp = xp_percentage * experience_rect.width
+
+        filled_rect = pygame.FRect(0, 5, filled_xp, 25)
+        pygame.draw.rect(self.window, COLOURS['blue'], filled_rect)
+
+        experience_surf = bar_font.render(f'Level: {self.player.level}', True, COLOURS['white'])
+        experience_text = experience_surf.get_frect(midright = (experience_rect.right - 20, experience_rect.centery))
+        self.window.blit(experience_surf, experience_text)
 
     ## Menus ##
     def start_menu(self):        
