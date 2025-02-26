@@ -159,7 +159,7 @@ class Game:
             if enemy.stats.health > 0:
                 self.player.damage(enemy)
                 if self.player.stats.health <= 0:
-                    self.reset_game()
+                    self.ui.state = 'reset'
         
     def spawn_rate(self): ## TODO change into wave function, different minutes different waves etc
         difficulty_timer = self.time - self.difficulty_start
@@ -276,9 +276,8 @@ class Game:
                 self.ui.pause_menu()
                 self.ui.update()
 
-            elif self.ui.state == 'start_menu_reset':
+            elif self.ui.state == 'reset':
                 self.reset_game()
-                self.ui.state = 'start_menu'
 
             elif self.ui.state != 'start_game':
                 self.ui.update()

@@ -103,7 +103,7 @@ class UI():
         elif self.state == 'pause':
             match index:
                 case 0: self.state = 'start_game'
-                case 1: self.state = 'start_menu_reset'
+                case 1: self.state = 'reset'
             self.btns.clear()
 
     def hover(self, index, options, font):
