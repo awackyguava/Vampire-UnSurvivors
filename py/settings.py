@@ -13,5 +13,6 @@ COLOURS = {
     'hoverred' : '#EF4747',
     'gray' : '#C5B5B5',
     'gold' : '#CAA314',
-    'transparent' : (197, 181, 181, 128)
+    'transparent' : (197, 181, 181, 128),
+    'blue': '#00BED6'
 }

@@ -82,9 +82,9 @@ class Game:
         ## Waves ##
         ## Minute : [Amount, Sprite, Stats (Health, Damage, Speed, gold_dropped)] ##
         self.WAVES = {
-            0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150, gold_dropped = 5, exp_dropped = 100)),
-            1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(125, 5, 175, gold_dropped = 10)),
-            2 : (2, self.getSprite(10, 6, self.enemy_sheet), Stats(175, 10, 225, gold_dropped = 10)),
+            0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150, gold_dropped = 5, exp_dropped = 10)),
+            1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(125, 5, 175, gold_dropped = 10, exp_dropped = 20)),
+            2 : (2, self.getSprite(10, 6, self.enemy_sheet), Stats(175, 10, 225, gold_dropped = 10, exp_dropped = 35)),
         }
 
     def map_setup(self):
@@ -237,7 +237,7 @@ class Game:
                             elif event.y < 0:
                                 self.ui.scroll_offset -= self.ui.scroll_distance
 
-                    case 'start_game':
+                    case 'start_game':                            
                             if self.timer_start == 0:
                                 self.timer_start = self.time
                                 self.difficulty_start = self.time
@@ -290,6 +290,7 @@ class Game:
                 ## Draw ##
                 self.window.fill('darkgreen')
                 self.all_sprites.draw(self.player.rect.center)
+                self.ui.level_up_bar()
 
                 if self.timer_start > 0:
                     minutes, seconds = divmod(int(self.time - self.timer_start), 60)
