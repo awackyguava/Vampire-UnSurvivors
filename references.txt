@@ -1,3 +1,5 @@
-Sprites - 
-Some code adapated from tutorial -
-Debugging was helped by ChatGpt - 
+Sprites - https://sethbb.itch.io/32rogues
+Some code adapated from tutorial - https://www.youtube.com/watch?v=8OMghdHP-zs
+Level Creation learned through tutorial - https://www.youtube.com/watch?v=N6xqCwblyiw
+Debugging and some code was helped by ChatGpt - https://chatgpt.com/
+Pygame Docs were also used - https://pyga.me/docs/
