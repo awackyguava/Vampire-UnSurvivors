@@ -96,7 +96,6 @@ class UI():
                     upgrade.lower(),
                     self.player.stats.base_stats[upgrade] + self.upgrades.on_upgrade[upgrade]
                 )
-                print(vars(self.player.stats))
             self.state = 'start_game'
             self.btns.clear()
 
@@ -178,10 +177,27 @@ class UI():
                 save_data = json.load(save_file)
                 self.gold.balance = save_data['gold']
                 self.upgrades.upgrade_count = save_data['upgrades']
+                self.upgrades.recalculateCosts()
                 self.save_slot = load_slot_name.strip('.txt')
 
         except FileNotFoundError:
-            print(f'No File at {file_path}')
+            save_data = {
+                'gold': 0,
+                'upgrades': {
+                    'Health': 0,
+                    'Damage': 0,
+                    'Speed': 0,
+                    'Range': 0,
+                }
+            }
+
+            with open(file_path, 'w') as save_file:
+                json.dump(save_data, save_file)
+
+            self.gold.balance = 0
+            self.upgrades.upgrade_count = save_data['upgrades']
+            self.upgrades.recalculateCosts()
+            self.save_slot = load_slot_name.strip('.txt')
 
     def level_up_bar(self):
         bar_font = self.get_font(25)

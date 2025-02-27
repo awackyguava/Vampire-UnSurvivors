@@ -252,7 +252,7 @@ class Player(Parent_Sprite):
     def level_up(self):
         self.level += 1
         self.current_xp -= self.level_up_exp
-        self.level_up_exp = (self.level_up_exp * 1.2) // 1
+        self.level_up_exp = (self.level_up_exp * 1.5) // 1
 
     def update(self, dt):
         super().update(dt)

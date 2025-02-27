@@ -79,9 +79,21 @@ class Game:
         ## Waves ##
         ## Minute : [Amount, Sprite, Stats (Health, Damage, Speed, gold_dropped)] ##
         self.WAVES = {
-            0 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(100, 2, 150, gold_dropped = 5, exp_dropped = 10)),
-            1 : (2, self.getSprite(1, 1, self.enemy_sheet), Stats(125, 5, 175, gold_dropped = 10, exp_dropped = 20)),
-            2 : (2, self.getSprite(10, 6, self.enemy_sheet), Stats(175, 10, 225, gold_dropped = 10, exp_dropped = 35)),
+            0 : (1, self.getSprite(6, 6, self.enemy_sheet), Stats(100, 2, 150, gold_dropped = 5, exp_dropped = 10)),
+            1 : (1, self.getSprite(0, 0, self.enemy_sheet), Stats(130, 3, 160, gold_dropped = 7, exp_dropped = 12)),
+            2 : (2, self.getSprite(0, 2, self.enemy_sheet), Stats(125, 2, 150, gold_dropped = 5, exp_dropped = 10)),
+            3 : (1, self.getSprite(1, 2, self.enemy_sheet), Stats(180, 4, 170, gold_dropped = 10, exp_dropped = 20)),
+            4 : (2, self.getSprite(0, 4, self.enemy_sheet), Stats(160, 4, 180, gold_dropped = 10, exp_dropped = 15)),
+            5 : (2, self.getSprite(1, 5, self.enemy_sheet), Stats(200, 6, 200, gold_dropped = 15, exp_dropped = 25)),
+            6 : (3, self.getSprite(0, 9, self.enemy_sheet), Stats(180, 4, 225, gold_dropped = 10, exp_dropped = 20)),
+            7 : (2, self.getSprite(8, 6, self.enemy_sheet), Stats(225, 5, 190, gold_dropped = 20, exp_dropped = 30)),
+            8 : (2, self.getSprite(1, 7, self.enemy_sheet), Stats(250, 10, 200, gold_dropped = 25, exp_dropped = 35)),
+            9 : (3, self.getSprite(0, 7, self.enemy_sheet), Stats(200, 5, 250, gold_dropped = 20, exp_dropped = 25)),
+            10 : (1, self.getSprite(3, 4, self.enemy_sheet), Stats(325, 20, 200, gold_dropped = 40, exp_dropped = 45)),
+            11 : (2, self.getSprite(0, 1, self.enemy_sheet), Stats(225, 5, 210, gold_dropped = 30, exp_dropped = 30)),
+            12 : (2, self.getSprite(10, 6, self.enemy_sheet), Stats(250, 10, 225, gold_dropped = 10, exp_dropped = 35)),
+            13 : (2, self.getSprite(2, 7, self.enemy_sheet), Stats(400, 25, 180, gold_dropped = 50, exp_dropped = 55)),
+            14 : (4, self.getSprite(0, 11, self.enemy_sheet), Stats(300, 20, 225, gold_dropped = 70, exp_dropped = 70)),
         }
 
     def map_setup(self):

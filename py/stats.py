@@ -40,18 +40,11 @@ class Stats:
 
 class Upgrades:
     def __init__(self):
-        self.upgrade_costs = {
-            'Health' : 100,
-            'Damage' : 150,
-            'Speed' : 200,
-            'Range' : 300,
-        }
-
         self.on_upgrade = {
-            'Health' : 50,
-            'Damage' : 25,
-            'Speed' : 20,
-            'Range' : 30,
+            'Health' : 25,
+            'Damage' : 10,
+            'Speed' : 10,
+            'Range' : 15,
         }
 
         self.upgrade_count = {
@@ -60,7 +53,23 @@ class Upgrades:
             'Speed' : 0,
             'Range' : 0,
         }
-    
+
+        self.base_costs = {
+            'Health' : 100,
+            'Damage' : 150,
+            'Speed' : 200,
+            'Range' : 300,
+        }
+
+        self.upgrade_costs = self.base_costs.copy()
+
+    def recalculateCosts(self):
+        self.upgrade_costs = {
+                               key:
+                               int(self.base_costs[key] * (1.2 ** self.upgrade_count[key])) 
+                               for key in self.upgrade_costs.keys()
+                            }
+
     def getUpgrades(self):
         return [key for key in self.upgrade_costs.keys()]
     
