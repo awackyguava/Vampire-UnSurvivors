@@ -5,20 +5,20 @@ class Collision(pygame.sprite.Sprite):
     def __init__(self, pos, surface, groups):
         super().__init__(groups)
         self.image = surface
-        self.rect = self.image.get_frect(topleft = pos)
+        self.rect = self.image.get_rect(topleft = pos)
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, surface, groups):
         super().__init__(groups)
         self.image = surface
-        self.rect = self.image.get_frect(topleft = pos)
+        self.rect = self.image.get_rect(topleft = pos)
         self.ground = True
 
 class Deco(pygame.sprite.Sprite):
     def __init__(self, pos, surface, groups):
         super().__init__(groups)
         self.image = surface
-        self.rect = self.image.get_frect(topleft = pos)
+        self.rect = self.image.get_rect(topleft = pos)
         self.deco = True
 
 ## Parents ##
@@ -48,7 +48,7 @@ class Parent_Sprite(pygame.sprite.Sprite):
     def hurt(self):
         self.hurt_start = pygame.time.get_ticks()
 
-        hurt = pygame.Surface(self.image.size).convert_alpha()
+        hurt = pygame.Surface(self.image.get_size()).convert_alpha()
         hurt.fill('darkred')
 
         self.image.blit(hurt, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
@@ -84,7 +84,7 @@ class Weapon(pygame.sprite.Sprite):
         ## Setup ##
         self.weapon_surface = pygame.transform.scale2x(sprite)
         self.image = self.weapon_surface
-        self.rect = self.image.get_frect(center = self.player.rect.center + self.player_direction * self.distance)
+        self.rect = self.image.get_rect(center = self.player.rect.center + self.player_direction * self.distance)
 
         ## Shooting ##
         self.shoot_time = pygame.time.get_ticks()
@@ -169,7 +169,7 @@ class Enemy(Parent_Sprite):
 
         self.player = player
 
-        self.rect = self.image.get_frect(center = self.get_spawn(map))
+        self.rect = self.image.get_rect(center = self.get_spawn(map))
         self.hitbox = self.rect.inflate(-15,-5)
 
         ## Timer ## 
@@ -226,7 +226,7 @@ class Player(Parent_Sprite):
     def __init__(self, pos, sprite, groups, collision_sprites, stats):
         super().__init__(sprite, collision_sprites, groups, stats.copyPlayer())
 
-        self.rect = self.image.get_frect(center = pos)
+        self.rect = self.image.get_rect(center = pos)
         self.hitbox = self.rect.inflate(-15,-5)
 
         self.level_up_exp = 100
@@ -244,7 +244,7 @@ class Player(Parent_Sprite):
     def damage(self, enemy):
         self.stats.health -= enemy.stats.damage
 
-        hurt = pygame.Surface(self.image.size).convert_alpha()
+        hurt = pygame.Surface(self.image.get_size()).convert_alpha()
         hurt.fill('darkred')
 
         self.image.blit(hurt, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
@@ -264,7 +264,7 @@ class Projectile(pygame.sprite.Sprite):
         super().__init__(groups)
 
         self.image = pygame.transform.rotozoom(sprite, degrees(atan2(direction.x, direction.y)) - 225, 1)
-        self.rect = self.image.get_frect(center = pos)
+        self.rect = self.image.get_rect(center = pos)
         self.direction = pygame.Vector2(direction).normalize()
         self.speed = SPEED['projectile']
 
