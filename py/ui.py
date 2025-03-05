@@ -30,7 +30,7 @@ class UI():
     ## Helpers ##
     def input(self):
         self.mouse_pos = pygame.mouse.get_pos()
-        mouse = pygame.mouse.get_just_pressed()
+        mouse = pygame.mouse.get_pressed()
 
         for button in self.btns:
             if button.collidepoint(self.mouse_pos):
@@ -116,11 +116,11 @@ class UI():
     def title(self, title):
         title_font = self.get_font(100)
         title_surf = title_font.render(title, True, COLOURS['white'])
-        title_text = title_surf.get_frect(center = (WINDOW_WIDTH / 2, 75))
+        title_text = title_surf.get_rect(center = (WINDOW_WIDTH / 2, 75))
         self.window.blit(title_surf, title_text)
 
     def background(self):
-        bg_rect = pygame.FRect(0,0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        bg_rect = pygame.Rect(0,0, WINDOW_WIDTH, WINDOW_HEIGHT)
         pygame.draw.rect(self.window, COLOURS['lightred'], bg_rect)
         pygame.draw.rect(self.window, COLOURS['gray'], bg_rect, 5)
 
@@ -139,7 +139,7 @@ class UI():
 
     def returnButton(self, font, options):
         return_surf = font.render('Main Menu', True, COLOURS['black'])
-        return_text = return_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50))
+        return_text = return_surf.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 50))
         if return_text not in self.btns:
             self.btns.append(return_text)
         options.append('Main Menu')
@@ -201,7 +201,7 @@ class UI():
 
     def level_up_bar(self):
         bar_font = self.get_font(25)
-        experience_rect = pygame.FRect(0, 0, WINDOW_WIDTH, 35)
+        experience_rect = pygame.Rect(0, 0, WINDOW_WIDTH, 35)
         pygame.draw.rect(self.window, COLOURS['white'], experience_rect, 5)
 
         current_xp = self.player.current_xp
@@ -209,11 +209,11 @@ class UI():
         xp_percentage = current_xp / level_xp
         filled_xp = xp_percentage * experience_rect.width
 
-        filled_rect = pygame.FRect(0, 5, filled_xp, 25)
+        filled_rect = pygame.Rect(0, 5, filled_xp, 25)
         pygame.draw.rect(self.window, COLOURS['blue'], filled_rect)
 
         experience_surf = bar_font.render(f'Level: {self.player.level}', True, COLOURS['white'])
-        experience_text = experience_surf.get_frect(midright = (experience_rect.right - 20, experience_rect.centery))
+        experience_text = experience_surf.get_rect(midright = (experience_rect.right - 20, experience_rect.centery))
         self.window.blit(experience_surf, experience_text)
 
     ## Menus ##
@@ -223,26 +223,26 @@ class UI():
         ## Loaded Label ##
         label_font = self.get_font(40)
         label_surf = label_font.render(f'Current Save Slot: {self.save_slot}', True, COLOURS['black'])
-        label_text = label_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
+        label_text = label_surf.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
         self.window.blit(label_surf, label_text)       
 
         options_font = self.get_font(50)
         if len(self.btns) == 0:
             ## Options Menu ##
-            options_rect = pygame.FRect(0, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+            options_rect = pygame.Rect(0, WINDOW_HEIGHT / 2, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
             for row in range(4):
                 x = options_rect.left + 75
                 y = 50 + options_rect.top + (options_rect.height / 4) * row
 
                 ## text ## 
                 option_surf = options_font.render(self.start_menu_options[row], True, COLOURS['black'])
-                option_text = option_surf.get_frect(center = (x,y))
+                option_text = option_surf.get_rect(center = (x,y))
 
                 self.btns.append(option_text)
             
             ## Upgrades Menu Button ##
             upgrade_surf = options_font.render('Upgrades', True, COLOURS['black'])
-            upgrade_text = upgrade_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
+            upgrade_text = upgrade_surf.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2))
             self.btns.append(upgrade_text)
 
         self.renderMenu(options_font, self.start_menu_options)
@@ -251,14 +251,14 @@ class UI():
         self.title('Select Your Character')
 
         character_font = self.get_font(50)
-        character_rect = pygame.FRect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+        character_rect = pygame.Rect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
         if len(self.btns) == 0:
             for i in range (3):
                 x = character_rect.left + (character_rect.width / 2) * i
                 y = WINDOW_HEIGHT / 2
 
                 character_surf = character_font.render(self.character_list[i], True, COLOURS['black'])
-                character_text = character_surf.get_frect(center = (x,y))
+                character_text = character_surf.get_rect(center = (x,y))
 
                 self.btns.append(character_text)
         
@@ -270,21 +270,21 @@ class UI():
         ## Gold ##
         gold_font = self.get_font(40)
 
-        gold_bg = pygame.FRect(WINDOW_WIDTH - 375, 35, WINDOW_WIDTH / 4, (WINDOW_HEIGHT / 4) - 75)
+        gold_bg = pygame.Rect(WINDOW_WIDTH - 375, 35, WINDOW_WIDTH / 4, (WINDOW_HEIGHT / 4) - 75)
         self.transparentSurfaceFill(gold_bg, True)
 
         gold_surface = gold_font.render(str(self.gold.balance), True, COLOURS['white'])
-        gold_text = gold_surface.get_frect(center = (gold_bg.centerx,gold_bg.centery))
+        gold_text = gold_surface.get_rect(center = (gold_bg.centerx,gold_bg.centery))
         self.window.blit(gold_surface, gold_text)
 
-        upgrade_rect = pygame.FRect(WINDOW_WIDTH / 4, 200, WINDOW_WIDTH / 2, WINDOW_HEIGHT - 350)
+        upgrade_rect = pygame.Rect(WINDOW_WIDTH / 4, 200, WINDOW_WIDTH / 2, WINDOW_HEIGHT - 350)
 
         ## Upgrade Bg ##
         upg_border_rect = upgrade_rect.inflate(250, 75)
         self.transparentSurfaceFill(upg_border_rect, True)
 
         ## TODO Stat Tracker ##
-        stat_rect = pygame.FRect(40, 20, 100, WINDOW_HEIGHT - 20)
+        stat_rect = pygame.Rect(40, 20, 100, WINDOW_HEIGHT - 20)
 
         ## Upgrade Buttons ##
         self.btns.clear()
@@ -313,13 +313,13 @@ class UI():
 
                     ## Purchase Button ##
                     upgrade_surf = gold_font.render('Purchase', True, COLOURS['black'])
-                    upgrade_text = upgrade_surf.get_frect(midtop = (x,y))
+                    upgrade_text = upgrade_surf.get_rect(midtop = (x,y))
 
                     ## Label ##
                     label_surf = gold_font.render(
                         f'{upgrade_key} - {self.upgrades.upgrade_costs[upgrade_key]}', True, COLOURS['black']
                     )
-                    label_text = label_surf.get_frect(midbottom = upgrade_text.midtop)
+                    label_text = label_surf.get_rect(midbottom = upgrade_text.midtop)
 
                     self.btns.append(upgrade_text)
                     self.upgrade_labels[label_surf] = label_text
@@ -332,7 +332,7 @@ class UI():
         self.title('Save Game')
         
         save_font = self.get_font(60)
-        save_rect = pygame.FRect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+        save_rect = pygame.Rect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
         save_arr = [f'Save Slot {i + 1}' for i in range(3)]
 
         ## Save Message ##
@@ -341,7 +341,7 @@ class UI():
             save_message_time = self.current_time - self.save_message_start
             if save_message_time <= 2:
                 save_surf = save_message_font.render('Saved!', True, COLOURS['black'])
-                save_message_text = save_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
+                save_message_text = save_surf.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
                 self.window.blit(save_surf, save_message_text)
             
         if len(self.btns) == 0:
@@ -350,7 +350,7 @@ class UI():
                 y = WINDOW_HEIGHT / 2
 
                 save_surf = save_font.render(f'Save Slot: {i + 1}', True, COLOURS['black'])
-                save_text = save_surf.get_frect(center = (x,y))
+                save_text = save_surf.get_rect(center = (x,y))
 
                 self.btns.append(save_text)
 
@@ -362,11 +362,11 @@ class UI():
         ## Loaded Label ##
         label_font = self.get_font(40)
         label_surf = label_font.render(f'Current Save Slot: {self.save_slot}', True, COLOURS['black'])
-        label_text = label_surf.get_frect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
+        label_text = label_surf.get_rect(center = (WINDOW_WIDTH / 2, WINDOW_HEIGHT - 150))
         self.window.blit(label_surf, label_text)
 
         save_font = self.get_font(60)
-        save_rect = pygame.FRect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
+        save_rect = pygame.Rect(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2)
         save_arr = [f'Save Slot {i + 1}' for i in range(3)]
 
         if len(self.btns) == 0:
@@ -375,7 +375,7 @@ class UI():
                 y = WINDOW_HEIGHT / 2
 
                 save_surf = save_font.render(f'Save Slot: {i + 1}', True, COLOURS['black'])
-                save_text = save_surf.get_frect(center = (x,y))
+                save_text = save_surf.get_rect(center = (x,y))
 
                 self.btns.append(save_text)
 
@@ -385,7 +385,7 @@ class UI():
         self.title('Level Up')
 
         level_font = self.get_font(50)
-        level_rect = pygame.FRect(50, WINDOW_HEIGHT / 4, WINDOW_WIDTH - 100, WINDOW_HEIGHT - 200)
+        level_rect = pygame.Rect(50, WINDOW_HEIGHT / 4, WINDOW_WIDTH - 100, WINDOW_HEIGHT - 200)
         level_up_keys = [upgrade for upgrade in self.upgrades.upgrade_costs.keys()]
 
         if len(self.btns) == 0:
@@ -394,11 +394,11 @@ class UI():
                 x = level_rect.left + (level_rect.width / 3) * i
                 y = level_rect.top
 
-                upgrade_rect = pygame.FRect(x, y, level_rect.width / 3 - 25, level_rect.height)
+                upgrade_rect = pygame.Rect(x, y, level_rect.width / 3 - 25, level_rect.height)
                 self.transparentSurfaceFill(upgrade_rect, True)
 
                 level_font_surf = level_font.render(self.level_up_options[i], True, COLOURS['black'])
-                level_font_text = level_font_surf.get_frect(center=(upgrade_rect.centerx, upgrade_rect.top + 50))
+                level_font_text = level_font_surf.get_rect(center=(upgrade_rect.centerx, upgrade_rect.top + 50))
 
                 self.btns.append(level_font_text)
 
@@ -407,7 +407,7 @@ class UI():
     def pause_menu(self):
         self.title('Game Paused')
 
-        stat_rect = pygame.FRect(150, 150, WINDOW_WIDTH - 300, WINDOW_HEIGHT - 225)
+        stat_rect = pygame.Rect(150, 150, WINDOW_WIDTH - 300, WINDOW_HEIGHT - 225)
 
         pause_font = self.get_font(35)
 
